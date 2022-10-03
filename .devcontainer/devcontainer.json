@@ -1,0 +1,13 @@
+{
+    "build": { "dockerfile": "Dockerfile" },
+
+    "customizations": {
+        "vscode": {
+            "extensions": ["GitHub.copilot", "esbenp.prettier-vscode", "Gruntfuggly.todo-tree", "ms-python.python"]
+        }
+    },
+
+    "forwardPorts": [],
+
+    "postCreateCommand": "bash .devcontainer/install-dev-tools.sh"
+}
