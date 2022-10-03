@@ -1,10 +1,12 @@
 # Development Container
 
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Container&message=Open&color=blue&logo=visualstudiocode)](https://rickos99.github.io/js-UrlRedirect/?redirect=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/D7017E/Rock-Paper-Scissors)
+
 This repository includes configuration for a local development container or using [GitHub Codespaces](https://github.com/features/codespaces).
 
 ## Quick start - local
 
-If you already have VS Code and Docker installed, you can click the badge above or [here](vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/D7017E/Rock-Paper-Scissors) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+If you already have VS Code and Docker installed, you can click the badge above or [here](https://rickos99.github.io/js-UrlRedirect/?redirect=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/D7017E/Rock-Paper-Scissors) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
 
 1. Install Docker Desktop or Docker for Linux on your local machine. (See [docs](https://aka.ms/vscode-remote/containers/getting-started) for additional details.)
 
