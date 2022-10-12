@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 
 [dev-packages]
+debugpy = "~=1.5.1"
 
 [requires]
 python_version = "2.7"

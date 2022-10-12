@@ -6,8 +6,12 @@
             "extensions": ["GitHub.copilot", "esbenp.prettier-vscode", "Gruntfuggly.todo-tree", "ms-python.python"]
         }
     },
+    "settings": {
+        "python.pythonPath": "/usr/local/bin/python",
+        "task.allowAutomaticTasks": "on"
+    },
 
     "forwardPorts": [],
 
-    "postCreateCommand": "bash .devcontainer/install-dev-tools.sh"
+    "postCreateCommand": "bash .devcontainer/post_create.sh"
 }

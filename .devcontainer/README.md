@@ -12,6 +12,8 @@ If you already have VS Code and Docker installed, you can click the badge above 
 
 2. Install [Visual Studio Code](https://code.visualstudio.com/) and the [Dev Containers](https://aka.ms/vscode-remote/download/containers) extension.
 
-3. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Dev Containers: Clone Repository in Container Volume...**.
+3. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Remote Containers: Clone Repository in Container Volume...**.
 
 4. Type `https://github.com/D7017E/Rock-Paper-Scissors` (or a branch or PR URL) in the input box and press <kbd>Enter</kbd>.
+
+:warning: **Note:** When the dev contaner is removed, all changes not commited will be permanently deleted too. To avoid this, before step 3, clone the repository onto local filesystem and open in it in VS Code. Then, in step 3 select **Remote Containers: Open Folder in Container** and all changes made in the devcontainer are made on the local filesystem and not the devcontainer volume.
