@@ -1,4 +1,8 @@
 {
-  "python.linting.pylintEnabled": true,
-  "python.linting.enabled": true
+    "python.linting.enabled": false,
+
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.formatOnSave": true
+    }
 }

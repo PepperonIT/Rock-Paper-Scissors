@@ -3,7 +3,7 @@
 
     "customizations": {
         "vscode": {
-            "extensions": ["GitHub.copilot", "esbenp.prettier-vscode", "Gruntfuggly.todo-tree", "ms-python.python"]
+            "extensions": ["GitHub.copilot", "ms-python.autopep8", "Gruntfuggly.todo-tree", "ms-python.python"]
         }
     },
     "settings": {
