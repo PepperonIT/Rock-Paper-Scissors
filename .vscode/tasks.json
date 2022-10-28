@@ -3,8 +3,8 @@
     "tasks": [
         {
             "label": "Launch",
-            "command": "pipenv",
-            "args": ["run", "python", "-m", "debugpy", "--listen", "5678", "--wait-for-client", "${file}"],
+            "command": "python",
+            "args": ["-m", "debugpy", "--listen", "5678", "--wait-for-client", "${file}"],
             "type": "process",
             "isBackground": true
         }

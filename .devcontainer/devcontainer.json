@@ -6,10 +6,7 @@
             "extensions": ["GitHub.copilot", "ms-python.autopep8", "Gruntfuggly.todo-tree", "ms-python.python"]
         }
     },
-    "settings": {
-        "python.pythonPath": "/usr/local/bin/python",
-        "task.allowAutomaticTasks": "on"
-    },
+    "settings": {},
 
     "forwardPorts": [],
 

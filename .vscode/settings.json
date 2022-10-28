@@ -1,8 +1,9 @@
 {
+    "python.defaultInterpreterPath": "/usr/local/bin/python",
     "python.linting.enabled": false,
 
     "[python]": {
-        "editor.defaultFormatter": "ms-python.autopep8",
+        "editor.defaultFormatter": "ms-python.python",
         "editor.formatOnSave": true
     }
 }
