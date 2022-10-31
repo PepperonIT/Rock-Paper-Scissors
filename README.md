@@ -2,7 +2,29 @@
 
 This is a repo for the rock-paper-scissor module.
 
-## Development Container _(optional)_
+## Usage
+
+If you are not using the development container, you will need to install the required dependencies first. Otherwise you can skip to step 4.
+
+**Step 1.** Install [Python 2.7](https://www.python.org/download/releases/2.7/).
+
+**Step 2.** Start by installing the required modules
+
+```bash
+pip install -r requirements.txt
+```
+
+**Step 3.** Download and extract the [Pepper SDK](PepperSDK.md).
+
+**Step 4.** Start the application with `python connection.py`
+
+## Development
+
+### Dependencies
+
+All dependencies are managed by pip and are listed in the `requirements.txt` file. If a new dependency is added, make sure to update the file with the name and version of the new dependency. The same applies when removing a dependency.
+
+### Development Container _(optional)_
 
 This repository includes a Visual Studio Code Dev Containers / GitHub Codespaces development container.
 
@@ -12,9 +34,11 @@ This repository includes a Visual Studio Code Dev Containers / GitHub Codespaces
 
 See the [development container README](.devcontainer/README.md) for more information.
 
-## Debug
+### Debug
 
-### Using VS Code
+To start a debug session, the [debugpy](https://pypi.org/project/debugpy/) module must be installed in the environment. This is done automatically when using the development container. If you are not using the development container, you can install the package using `pip install debugpy==1.5.1`.
 
-1. Open the python file you want to debug debug. 
+#### Using VS Code
+
+1. Open the python file you want to debug.
 2. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Debug: Select and Start Debugging**. Next, select **Python: Debug File** in the dropdown list to start debugging.
