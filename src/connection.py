@@ -1,11 +1,6 @@
 import random
 import time
 
-import numpy
-from PIL import Image
-import qi
-import cv2
-
 
 class Connection:
     """
@@ -71,75 +66,7 @@ class Connection:
                 "https://www.tingstad.com/fixed/images/Main/1536253379/4003801725307.png")
         self.tablet_service.hideImage()
 
-    def camera_subscribe(self, camera_index: int, resolution: int, color_space: int, fps: int) -> None:
-        """
-        Subscribe to the camera.
-        """
-        self.camera_link = self.camera_service.subscribeCamera(
-            "CameraStream1", camera_index, resolution, color_space, fps)
-
-        if self.camera_link:
-            print("Camera subscribed")
-        else:
-            print("Camera subscription failed")
-
-    def camera_unsubscribe(self):
-        self.camera_service.unsubscribe(self.camera_link)
-        print("Camera unsubscribed")
-
-    def capture_frame(self):
-        """
-        Get one image frame from pepper.
-        """
-        self.camera_subscribe(0, 3, 13, 30)
-
-        # Get a camera image.
-        image_stream = self.camera_service.getImageRemote(self.camera_link)
-        image_arr = numpy.frombuffer(image_stream[6], numpy.uint8).reshape(
-            image_stream[1], image_stream[0], 3)
-
-        # Process image
-        self.camera_unsubscribe()
-
-        # im = Image.fromarray(image)
-        cv2.imwrite("image.png", image_arr)
-
     def capture_gesture(self):
         """
         Capture a gesture from the player.
         """
-
-
-def main():
-    """
-    Docstring 1
-    """
-
-    session = qi.Session()
-    session.connect("tcp://{0}:{1}".format("130.240.238.32", 9559))
-    # tts = ALProxy("ALTextToSpeech", "130.240.238.32", 9559)
-
-    motion_service = session.service("ALMotion")
-    tablet = session.service("ALTabletService")
-    camera_service = session.service("ALVideoDevice")
-
-    motions = Connection(motion_service, tablet, camera_service)
-
-    motions.capture_frame()
-
-    gesture = motions.select_gesture()
-    motions.shake_arm()
-    motions.do_gesture(gesture)
-
-    # names = ["RWristYaw", "RElbowRoll", "RElbowYaw"]
-    # angles = [0, 1.4, 1.57]
-    # fractionMaxSpeed = 0.2
-    # motion_service.setAngles(names, angles, fractionMaxSpeed)
-
-    # motion_service.closeHand('RHand')
-    # tts.say("Hello there")
-    # tts.say("Obiwan Kenobi")
-    # tts.say("Goodbye")
-
-
-main()
