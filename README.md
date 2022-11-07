@@ -16,13 +16,25 @@ pip install -r requirements.txt
 
 **Step 3.** Download and extract the [Pepper SDK](PepperSDK.md).
 
-**Step 4.** Start the application with `python connection.py`
+**Step 4.** Start the application with `python ./src/app.py`
 
 ## Development
 
 ### Dependencies
 
-All dependencies are managed by pip and are listed in the `requirements.txt` file. If a new dependency is added, make sure to update the file with the name and version of the new dependency. The same applies when removing a dependency.
+All dependencies are managed by pip and are listed in the `requirements.txt` and `requirements-dev.txt` file. The development dependencies are only required if you want to make changes to the code. To install the dependencies, including the development dependencies, run:
+
+```bash
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+The `requirements.txt` file contains the dependencies required to launch the application and the `requirements-dev.txt` file contains tools used during development.
+
+If a new dependency is added, make sure to update the correct requirement file with name and version of the new dependency. The same applies when removing a dependency. To automatically update the requirements file `requirements.txt`, run:
+
+```bash
+pipreqs
+```
 
 ### Development Container _(optional)_
 
@@ -36,7 +48,7 @@ See the [development container README](.devcontainer/README.md) for more informa
 
 ### Debug
 
-To start a debug session, the [debugpy](https://pypi.org/project/debugpy/) module must be installed in the environment. This is done automatically when using the development container. If you are not using the development container, you can install the package using `pip install debugpy==1.5.1`.
+To start a debug session, the [debugpy](https://pypi.org/project/debugpy/) module must be installed in the environment, see [Dependencies](#dependencies).
 
 #### Using VS Code
 
