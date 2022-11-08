@@ -18,6 +18,16 @@ pip install -r requirements.txt
 
 **Step 4.** Start the application with `python ./src/app.py`
 
+### Capture images
+
+To capture images, you need to run the `capture.py` script. This script will capture images from the robot's camera and save them on the computer the script is running on. If you are using the dev container and not already in the project root, navigate to `/workspaces/Rock-Paper-Scissors`. Next run
+
+```bash
+python ./src/ai/capture_image.py [name_of_image.jpg]
+```
+
+If only an image name is provided, the image will be saved in the current path. If a path is provided, the image will be saved in the specified path.
+
 ## Development
 
 ### Dependencies
