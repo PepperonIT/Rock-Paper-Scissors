@@ -1,6 +1,5 @@
 import qi
 from connection import Connection
-from camera import Camera
 
 
 def main():
@@ -10,16 +9,14 @@ def main():
     motion_service = session.service("ALMotion")
     tablet = session.service("ALTabletService")
     camera_service = session.service("ALVideoDevice")
+    speech_service = session.service("ALTextToSpeech")
 
-    motions = Connection(motion_service, tablet, camera_service)
-    camera = Camera(session)
-
-    camera.save_image_frame("test.jpg")
-    motions.capture_frame()
+    motions = Connection(motion_service, tablet, camera_service, speech_service)
 
     gesture = motions.select_gesture()
     motions.shake_arm()
     motions.do_gesture(gesture)
+    motions.say_result()
 
 
 main()
