@@ -6,17 +6,17 @@ def main():
     session = qi.Session()
     session.connect("tcp://{0}:{1}".format("130.240.238.32", 9559))
 
-    motion_service = session.service("ALMotion")
-    tablet = session.service("ALTabletService")
-    camera_service = session.service("ALVideoDevice")
-    speech_service = session.service("ALTextToSpeech")
+    motions = Connection(session)
 
-    motions = Connection(motion_service, tablet, camera_service, speech_service)
+    motions.startTracking()
 
     gesture = motions.select_gesture()
     motions.shake_arm()
     motions.do_gesture(gesture)
     motions.say_result()
 
+    motions.stopTracking()
 
-main()
+
+if __name__ == "__main__":
+    main()

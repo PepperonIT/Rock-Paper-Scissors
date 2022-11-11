@@ -1,5 +1,5 @@
 # coding=utf-8
-import math
+
 import random
 import time
 
@@ -40,11 +40,16 @@ class Connection:
     Docstring 1
     """
 
-    def __init__(self, motion_service, tablet_service, camera_service, speech_service):
-        self.motion_service = motion_service
-        self.tablet_service = tablet_service
-        self.camera_service = camera_service
-        self.speech_service = speech_service
+    def __init__(self, session):
+
+        self.motion_service = session.service("ALMotion")
+        self.tablet_service = session.service("ALTabletService")
+        self.camera_service = session.service("ALVideoDevice")
+        self.tracker_service = session.service("ALTracker")
+        self.posture_service = session.service("ALRobotPosture")
+        self.speech_service = session.service("ALTextToSpeech")
+        self.mem = session.service("ALMemory")
+        self.face = session.service("ALFaceDetection")
         self.tablet_service.preLoadImage(
             "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Logan_Rock_Treen_closeup.jpg/1200px-Logan_Rock_Treen_closeup.jpg")
         self.tablet_service.preLoadImage(
@@ -59,7 +64,7 @@ class Connection:
         names = ["RShoulderPitch", "RElbowRoll"]
         angleUp = [0.5, 1]  # Up
         angleDown = [1, 0.5]  # Down
-        fraction_max_speed = 0.21
+        fraction_max_speed = 0.2
         motion_delay = 0.3
 
         # Rest to down position
@@ -80,7 +85,6 @@ class Connection:
         Docstring 1
         """
         gesture_id = random.randint(0, 2)
-        print(gesture_id)
         return gesture_id
 
     def do_gesture(self, gesture_id):
@@ -108,6 +112,50 @@ class Connection:
         Capture a gesture from the player.
         """
         return -1
+
+    def startTracking(self):
+        # First, wake up.
+        self.motion_service.wakeUp()
+
+        fractionMaxSpeed = 0.8
+
+        # Go to posture stand
+        self.posture_service.goToPosture("StandInit", fractionMaxSpeed)
+
+        # Add target to track.
+        targetName = "Face"
+        faceWidth = 0.25
+        self.tracker_service.registerTarget(targetName, faceWidth)
+
+        # Set target to track.
+        self.tracker_service.track(targetName)
+        self.face.subscribe("Face")
+
+        print("ALTracker successfully started.")
+        print("Use Ctrl+c to stop this script.")
+
+        self.text_to_speech_service.say(
+            'Jag letar efter någon att spela med')
+
+        try:
+            while self.mem.getData('FaceDetected') == None or self.mem.getData('FaceDetected') == []:
+                time.sleep(2)
+
+            self.text_to_speech_service.say("Oh hej")
+        except KeyboardInterrupt:
+            print
+            print("Interrupted by user")
+            print("Stopping...")
+            self.stopTracking()
+
+    def stopTracking(self):
+        # Stop tracker
+        self.tracker_service.stopTracker()
+        self.tracker_service.unregisterAllTargets()
+        self.face.unsubscribe("Face")
+        self.posture_service.goToPosture("StandInit", 0.8)
+
+        print("ALTracker stopped.")
 
     def say_result(self, humanGesture, computerGesture):
         """
