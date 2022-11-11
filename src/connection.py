@@ -4,21 +4,52 @@ import random
 import time
 
 
+verbal_feedback_se = {
+    # General
+    "welcome": "Välkommen till sten, sax, påse!",
+    "instructions": "SKRIV INSTRUKTIONER HÄR",
+
+    "rock_paper_scissors": [
+        "sten",
+        "sax",
+        "påse"
+    ],
+
+    # Result messages
+    "human_victory": [
+        "Grattis, du vann!",
+        "Nybörjartur, nästa gång vinner jag!"
+    ],
+    "computer_victory": [
+        "Jag vann",
+        "En vinst för mig"
+    ],
+    "tie": [
+        "Oavgjort",
+        "Det blev lika"
+    ],
+
+    # Errors
+    "error_general": "Jag är lite förvirrad, kan försöka vara lite tydligare?",
+    "error_hand_not_found": "Jag kunde inte hitta din hand. Kan du hålla den lite högre upp?",
+}
+
+
 class Connection:
     """
     Docstring 1
     """
 
     def __init__(self, session):
+
         self.motion_service = session.service("ALMotion")
         self.tablet_service = session.service("ALTabletService")
         self.camera_service = session.service("ALVideoDevice")
         self.tracker_service = session.service("ALTracker")
         self.posture_service = session.service("ALRobotPosture")
-        self.text_to_speech_service = session.service("ALTextToSpeech")
+        self.speech_service = session.service("ALTextToSpeech")
         self.mem = session.service("ALMemory")
         self.face = session.service("ALFaceDetection")
-
         self.tablet_service.preLoadImage(
             "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Logan_Rock_Treen_closeup.jpg/1200px-Logan_Rock_Treen_closeup.jpg")
         self.tablet_service.preLoadImage(
@@ -28,25 +59,26 @@ class Connection:
 
     def shake_arm(self):
         """
-        Docstring 1
+        Shake arm and say rock paper scissors.
         """
-        # names = ["RElbowRoll"]
         names = ["RShoulderPitch", "RElbowRoll"]
-        angle1 = [0.5, 1]  # Up
-        angle2 = [1, 0.5]  # Down
+        angleUp = [0.5, 1]  # Up
+        angleDown = [1, 0.5]  # Down
         fraction_max_speed = 0.2
+        motion_delay = 0.3
 
-        self.motion_service.setAngles(names, angle1, fraction_max_speed)
-
-        moves = ["Sten", "Sax", "Påse"]
+        # Rest to down position
+        self.motion_service.setAngles(names, angleDown, fraction_max_speed)
+        time.sleep(2 * motion_delay)
 
         for i in range(3):
-            # time.sleep(0.5)
-            self.motion_service.setAngles(names, angle1, fraction_max_speed)
-            time.sleep(0.5)
-            self.motion_service.setAngles(names, angle2, fraction_max_speed)
-            self.text_to_speech_service.say(moves[i])
-        self.motion_service.setAngles(names, angle1, fraction_max_speed)
+            self.motion_service.setAngles(names, angleUp, fraction_max_speed)
+            time.sleep(motion_delay)
+            self.motion_service.setAngles(names, angleDown, fraction_max_speed)
+            self.speech_service.say(verbal_feedback_se["rock_paper_scissors"][i])
+            time.sleep(0.3 * motion_delay)
+
+        self.motion_service.setAngles(names, angleUp, fraction_max_speed)
 
     def select_gesture(self):
         """
@@ -79,9 +111,9 @@ class Connection:
         """
         Capture a gesture from the player.
         """
+        return -1
 
     def startTracking(self):
-
         # First, wake up.
         self.motion_service.wakeUp()
 
@@ -124,3 +156,70 @@ class Connection:
         self.posture_service.goToPosture("StandInit", 0.8)
 
         print("ALTracker stopped.")
+
+    def say_result(self, humanGesture, computerGesture):
+        """
+        Docstring 1
+
+        Parameters
+        ----------
+        humanGesture : int
+            The gesture the human player chose.
+        computerGesture : int
+            The gesture the computer chose.
+
+        Returns
+        -------
+        None.
+        """
+        winner = get_winner(humanGesture, computerGesture)
+        if winner == 0:
+            victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
+            self.speech_service.say(verbal_feedback_se["human_victory"][victory_saying_index])
+        elif winner == 1:
+            victory_saying_index = random.randint(0, len(verbal_feedback_se["computer_victory"]) - 1)
+            self.speech_service.say(verbal_feedback_se["computer_victory"][victory_saying_index])
+        elif winner == 2:
+            victory_saying_index = random.randint(0, len(verbal_feedback_se["tie"]) - 1)
+            self.speech_service.say(verbal_feedback_se["tie"][victory_saying_index])
+
+
+def get_winner(humanGesture, computerGesture):
+    """
+    Determine the winner of the game.
+
+    A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
+
+    Parameters
+    ----------
+    humanGesture : int
+        The gesture the human player chose.
+    computerGesture : int
+        The gesture the computer chose.
+
+    Returns
+    -------
+    int
+        0 if human wins, 1 if computer wins, 2 if tie.
+    """
+    if humanGesture == 0:  # rock
+        if computerGesture == 0:
+            return 2
+        if computerGesture == 1:
+            return 1
+        if computerGesture == 2:
+            return 0
+    elif humanGesture == 1:  # paper
+        if computerGesture == 0:
+            return 0
+        if computerGesture == 1:
+            return 2
+        if computerGesture == 2:
+            return 1
+    elif humanGesture == 2:  # scissors
+        if computerGesture == 0:
+            return 1
+        if computerGesture == 1:
+            return 0
+        if computerGesture == 2:
+            return 2
