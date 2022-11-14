@@ -12,7 +12,7 @@ def main():
     camera = Camera(session)
 
     # camera.save_image_frame("test.jpg")
-    # motions.capture_frame()
+    # camera.capture_frame()
 
     motions.startTracking()
 
