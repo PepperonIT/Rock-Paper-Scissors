@@ -28,7 +28,7 @@ def predict_on_images(images):
         "shape": images[0].shape
     })
     request_headers = {"Content-Type": "application/json"}
-    request_url = "http://127.0.0.1:5000/predict/hand"
+    request_url = "https://pepper.lillbonum.se/predict/hand"
 
     # Send HTTP request
     response = requests.get(request_url, data=request_body, headers=request_headers)
@@ -46,4 +46,13 @@ def predict_on_images(images):
 
     # Do something with the reponse
     print("response: {}".format(response_json))
-    return response_json["prediction"]
+    if response_json["prediction"] == "ROCK":
+        return 0
+    elif response_json["prediction"] == "PAPER":
+        return 1
+    elif response_json["prediction"] == "SCISSORS":
+        return 2
+    elif response_json["prediction"] == "NOTHING":
+        return -1
+    else:
+        return -2

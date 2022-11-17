@@ -7,7 +7,7 @@ from ai_rest import predict_on_images
 
 verbal_feedback_se = {
     # General
-    "welcome": "Oh hej. Är du redo?",
+    "welcome": "Oh hej",
     "instructions": "SKRIV INSTRUKTIONER HÄR",
 
     "rock_paper_scissors": [
@@ -32,7 +32,8 @@ verbal_feedback_se = {
 
     # Errors
     "error_general": "Jag är lite förvirrad, kan försöka vara lite tydligare?",
-    "error_hand_not_found": "Jag kunde inte hitta din hand. Kan du hålla den lite högre upp?",
+    "error_hand_not_found": "Jag kunde inte hitta din hand. Kan du hålla den lite högre upp så kör vi igen?",
+    "error_no_gesture": "Jag kunde inte förstå dig. Vi prövar igen",
 }
 
 # image_paths_from_pepper = {
@@ -45,7 +46,7 @@ verbal_feedback_se = {
 image_paths = {
     "bag": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Brown_bag.jpg/250px-Brown_bag.jpg",
     "rock": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Logan_Rock_Treen_closeup.jpg/1200px-Logan_Rock_Treen_closeup.jpg",
-    "paper":  "https://kronofogden.se/images/18.338e6d8417768af37a81509/1613482649765/bilder%20grafisk%20manual%20web43.png",
+    "paper": "https://kronofogden.se/images/18.338e6d8417768af37a81509/1613482649765/bilder%20grafisk%20manual%20web43.png",
     "scissor": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Standard_household_scissors.jpg/640px-Standard_household_scissors.jpg",
 }
 
@@ -70,6 +71,23 @@ class Connection:
         # Preload all images
         # for key in image_paths:
         # self.tablet_service.preLoadImage(image_paths[key])
+
+    def run_game(self, changeTracking=True):
+        if changeTracking:
+            self.startTracking()
+
+        computer_gesture = self.select_gesture()
+        self.shake_arm()
+        self.do_gesture(computer_gesture)
+        human_gesture = self.capture_gesture()
+        print("humangesture: {}".format(human_gesture))
+        print("robotgesture: {}".format(computer_gesture))
+        self.say_result(human_gesture, computer_gesture)
+        time.sleep(3)
+        self.hide_image()
+
+        if changeTracking:
+            self.stopTracking()
 
     def shake_arm(self):
         """
@@ -105,7 +123,7 @@ class Connection:
         """
         Docstring 1
         """
-
+        self.tablet_service.hideImage()
         # 0 == rock, 1 == paper, 2 == scissors
         if gesture_id == 0:
             self.tablet_service.showImage(image_paths["rock"])
@@ -115,6 +133,8 @@ class Connection:
             # self.motion_service.openHand('RHand')
         elif gesture_id == 2:
             self.tablet_service.showImage(image_paths["scissor"])
+
+    def hide_image(self):
         self.tablet_service.hideImage()
 
     def capture_gesture(self):
@@ -130,15 +150,14 @@ class Connection:
         """
         # Capture images
         gesture_images = []
-        self.camera.subscribe(0, 1, 13, 30)
+        self.camera.subscribe(0, 0, 13, 30)
         for _ in range(0, 10):
             gesture = self.camera.capture_frame()
             gesture_images.append(gesture)
         self.camera.unsubscribe()
 
         # Process images
-        # prediction = predict_on_images(gesture_images)
-        prediction = random.randint(0, 2)
+        prediction = predict_on_images(gesture_images)
 
         return prediction
 
@@ -170,7 +189,7 @@ class Connection:
             while self.mem.getData('FaceDetected') == None or self.mem.getData('FaceDetected') == []:
                 time.sleep(2)
 
-            self.speech_service.say("Oh hej")
+            self.speech_service.say(verbal_feedback_se["welcome"])
         except KeyboardInterrupt:
             print
             print("Interrupted by user")
@@ -201,6 +220,13 @@ class Connection:
         -------
         None.
         """
+        if humanGesture == -1:
+            self.speech_service.say(verbal_feedback_se["error_no_gesture"])
+            self.run_game(False)
+        elif humanGesture == -2:
+            self.speech_service.say(verbal_feedback_se["error_hand_not_found"])
+            self.run_game(False)
+
         winner = get_winner(humanGesture, computerGesture)
         if winner == 0:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
