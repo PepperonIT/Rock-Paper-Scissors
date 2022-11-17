@@ -1,3 +1,25 @@
+[project]
+name = "PRPS"
+description = "A package for allowing Pepper to play rock-paper-scissors"
+version = "0.0.1"
+authors = [
+  { name="bersim", email="bersim-8@student.ltu.se"},
+]
+readme = "README.md"
+requires-python = "~=2.7"
+classifiers = [
+    "Programming Language :: Python :: 2",
+    "License :: OSI Approved :: Apache Software License",    
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/D7017E/Rock-Paper-Scissors"
+
+[build-system]
+requires = ["setuptools~=41.1.1"]
+build-backend = "setuptools.build_meta"
+
 [tool.autopep8]
 max_line_length = 120
 ignore = "E402"

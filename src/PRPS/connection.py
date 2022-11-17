@@ -2,12 +2,11 @@
 
 import random
 import time
-from camera import Camera
-from ai_rest import predict_on_images
+
 
 verbal_feedback_se = {
     # General
-    "welcome": "Oh hej. Är du redo?",
+    "welcome": "Välkommen till sten, sax, påse!",
     "instructions": "SKRIV INSTRUKTIONER HÄR",
 
     "rock_paper_scissors": [
@@ -35,20 +34,6 @@ verbal_feedback_se = {
     "error_hand_not_found": "Jag kunde inte hitta din hand. Kan du hålla den lite högre upp?",
 }
 
-# image_paths_from_pepper = {
-#     "bag": "/data/home/nao/pepperonit/rps/images/RPS_bag.jpg",
-#     "rock": "/data/home/nao/pepperonit/rps/images/RPS_rock.jpg",
-#     "paper": "/data/home/nao/pepperonit/rps/images/RPS_paper.jpg",
-#     "scissor": "/data/home/nao/pepperonit/rps/images/RPS_scissor.jpg",
-# }
-
-image_paths = {
-    "bag": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Brown_bag.jpg/250px-Brown_bag.jpg",
-    "rock": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Logan_Rock_Treen_closeup.jpg/1200px-Logan_Rock_Treen_closeup.jpg",
-    "paper":  "https://kronofogden.se/images/18.338e6d8417768af37a81509/1613482649765/bilder%20grafisk%20manual%20web43.png",
-    "scissor": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Standard_household_scissors.jpg/640px-Standard_household_scissors.jpg",
-}
-
 
 class Connection:
     """
@@ -65,11 +50,12 @@ class Connection:
         self.speech_service = session.service("ALTextToSpeech")
         self.mem = session.service("ALMemory")
         self.face = session.service("ALFaceDetection")
-        self.camera = Camera(session)
-
-        # Preload all images
-        # for key in image_paths:
-        # self.tablet_service.preLoadImage(image_paths[key])
+        self.tablet_service.preLoadImage(
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Logan_Rock_Treen_closeup.jpg/1200px-Logan_Rock_Treen_closeup.jpg")
+        self.tablet_service.preLoadImage(
+            "https://kronofogden.se/images/18.338e6d8417768af37a81509/1613482649765/bilder%20grafisk%20manual%20web43.png")
+        self.tablet_service.preLoadImage(
+            "https://www.tingstad.com/fixed/images/Main/1536253379/4003801725307.png")
 
     def shake_arm(self):
         """
@@ -96,51 +82,41 @@ class Connection:
 
     def select_gesture(self):
         """
-        Docstring 1
+        Randomly select which gesture Pepper should do
         """
         gesture_id = random.randint(0, 2)
         return gesture_id
 
     def do_gesture(self, gesture_id):
         """
-        Docstring 1
+        Pepper performs a set gesture depending on the given int
+
+        Parameters
+        ---------------
+        gesture_id : int
+            The gesture that Pepper should do
         """
 
         # 0 == rock, 1 == paper, 2 == scissors
         if gesture_id == 0:
-            self.tablet_service.showImage(image_paths["rock"])
-            # self.motion_service.closeHand('RHand')
+            self.tablet_service.showImage(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Logan_Rock_Treen_closeup.jpg/1200px-Logan_Rock_Treen_closeup.jpg"
+            )
+            self.motion_service.closeHand('RHand')
         elif gesture_id == 1:
-            self.tablet_service.showImage(image_paths["bag"])
-            # self.motion_service.openHand('RHand')
+            self.tablet_service.showImage(
+                "https://kronofogden.se/images/18.338e6d8417768af37a81509/1613482649765/bilder%20grafisk%20manual%20web43.png")
+            self.motion_service.openHand('RHand')
         elif gesture_id == 2:
-            self.tablet_service.showImage(image_paths["scissor"])
+            self.tablet_service.showImage(
+                "https://www.tingstad.com/fixed/images/Main/1536253379/4003801725307.png")
         self.tablet_service.hideImage()
 
     def capture_gesture(self):
         """
         Capture a gesture from the player.
-
-        Returns
-        -------
-        int:
-            Returns the gesture id. If no gesture is found, returns -1. If no 
-            hand was found, returns -2. If an error occured, returns -3.
-
         """
-        # Capture images
-        gesture_images = []
-        self.camera.subscribe(0, 1, 13, 30)
-        for _ in range(0, 10):
-            gesture = self.camera.capture_frame()
-            gesture_images.append(gesture)
-        self.camera.unsubscribe()
-
-        # Process images
-        # prediction = predict_on_images(gesture_images)
-        prediction = random.randint(0, 2)
-
-        return prediction
+        return -1
 
     def startTracking(self):
         # First, wake up.

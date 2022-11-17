@@ -8,18 +8,18 @@ def main():
 
     motions = Connection(session)
 
-    human_gesture = motions.capture_gesture()
-    print("Capture gesture is {}".format(human_gesture))
-    return
-    motions.startTracking()
+    # human_gesture = motions.capture_gesture()
+    # print("Capture gesture is {}".format(human_gesture))
+    # return
+    # motions.startTracking()
 
     computer_gesture = motions.select_gesture()
     motions.shake_arm()
     motions.do_gesture(computer_gesture)
-    human_gesture = motions.capture_gesture()
-    motions.say_result(human_gesture)
+    # human_gesture = motions.capture_gesture()
+    # motions.say_result(human_gesture, computer_gesture)
 
-    motions.stopTracking()
+    # motions.stopTracking()
 
 
 if __name__ == "__main__":
