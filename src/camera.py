@@ -83,6 +83,9 @@ class Camera:
         if image_stream is None:
             raise RuntimeError("Could not get image from camera")
 
+        print(type(image_stream))
+        print("len list: ", len(image_stream))
+
         image_arr = numpy.frombuffer(image_stream[6], numpy.uint8).reshape(
             image_stream[1], image_stream[0], channels)
         return image_arr

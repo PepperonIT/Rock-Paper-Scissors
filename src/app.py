@@ -8,12 +8,16 @@ def main():
 
     motions = Connection(session)
 
+    human_gesture = motions.capture_gesture()
+    print("Capture gesture is {}".format(human_gesture))
+    return
     motions.startTracking()
 
-    gesture = motions.select_gesture()
+    computer_gesture = motions.select_gesture()
     motions.shake_arm()
-    motions.do_gesture(gesture)
-    motions.say_result()
+    motions.do_gesture(computer_gesture)
+    human_gesture = motions.capture_gesture()
+    motions.say_result(human_gesture)
 
     motions.stopTracking()
 

@@ -16,7 +16,9 @@ pip install -r requirements.txt
 
 **Step 3.** Download and extract the [Pepper SDK](PepperSDK.md).
 
-**Step 4.** Start the application with `python ./src/app.py`
+**Step 4.** Upload the [`images`](./images/) folder to pepper. Use the path `/data/home/nao/pepperonit/rps/images`, e.g. `/data/home/nao/pepperonit/rps/images/RPS_rock.jpg`.
+
+**Step 5.** Start the application with `python ./src/app.py`.
 
 ## Capture images
 

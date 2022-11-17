@@ -16,19 +16,19 @@ def serialize_image(fid, grayscale=False):
 
     Returns
     -------
-    bytes
-        Serialized image.
+    (bytes, tuple, numpy.dtype)
+        A tuple containing the serialized image as `bytes`, the image shape as `tuple`, and the image data type as `numpy.dtype`.
 
     Examples
     --------
     Serialize an image stored in a file will generate a `bytes` object.
 
     >>> serialize_image("rgbw.png")
-    b'$\x1c\xedL\xb1"\xe8\xa2\x00\xff\xff\xff'
+    (b'$\x1c\xedL\xb1"\xe8\xa2\x00\xff\xff\xff', (2, 2, 1), dtype.uint8)
     """
     colormode = cv2.IMREAD_GRAYSCALE if grayscale else cv2.IMREAD_COLOR
     im = cv2.imread(fid, colormode)
-    return np.array(im.tolist(), dtype=np.uint8).tobytes()
+    return np.array(im.tolist(), dtype=np.uint8).tobytes(), im.shape, im.dtype
 
 
 def serialize_image_array(arr, dtype=np.uint8):
