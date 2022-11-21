@@ -3,6 +3,9 @@
 import datetime
 import random
 import time
+import cv2
+from threading import Thread
+from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
 
@@ -77,15 +80,23 @@ class Connection:
         if changeTracking:
             self.startTracking()
 
+        event = Event()
+        thread = Thread(target=self.showVideo, args=(event,))
+        thread.start()
+
+
         computer_gesture = self.select_gesture()
         self.shake_arm()
         self.do_gesture(computer_gesture)
+        event.set()
+        time.sleep(1)
+
         human_gesture = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
         self.say_result(human_gesture, computer_gesture)
         time.sleep(3)
-        self.hide_image()
+        self.tablet_service.hideImage()
 
         if changeTracking:
             self.stopTracking()
@@ -125,7 +136,7 @@ class Connection:
         """
         Docstring 1
         """
-        self.tablet_service.hideImage()
+        # self.tablet_service.hideImage()
         # 0 == rock, 1 == paper, 2 == scissors
         if gesture_id == 0:
             self.tablet_service.showImage(image_paths["rock"])
@@ -136,8 +147,22 @@ class Connection:
         elif gesture_id == 2:
             self.tablet_service.showImage(image_paths["scissor"])
 
-    def hide_image(self):
-        self.tablet_service.hideImage()
+    def showVideo(self, event):
+        """
+        Docstring 1
+        """
+        self.camera.subscribe(0, 1, 13, 30)
+        while True:
+            # img = self.select_gesture()
+            if event.is_set():
+                self.tablet_service.hideImage()
+                break
+            image = self.camera.capture_frame()
+            cv2.imwrite('image0.png', image)
+
+            # self.do_gesture(img)
+        self.camera.unsubscribe()
+        
 
     def capture_gesture(self):
         """
@@ -152,8 +177,8 @@ class Connection:
         """
         # Capture images
         gesture_images = []
-        self.camera.subscribe(0, 0, 13, 30)
-        for _ in range(0, 5):
+        self.camera.subscribe(0, 1, 13, 30)
+        for _ in range(0, 2):
             gesture = self.camera.capture_frame()
             gesture_images.append(gesture)
         self.camera.unsubscribe()

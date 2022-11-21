@@ -108,7 +108,8 @@ class Camera:
         current directory.
         >>> camera.save_image_frame("image.png")
         """
-        self.subscribe(0, 3, 13, 30)
+        self.subscribe(0, 1, 13, 60)
         image = self.capture_frame()
         self.unsubscribe()
         cv2.imwrite(imagePath, image)
+        print("Image captured!")
