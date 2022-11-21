@@ -113,12 +113,12 @@ class Connection:
 
         self.motion_service.setAngles(names, angleUp, fraction_max_speed)
 
-    def select_gesture(self):
+    def select_gesture(self) -> int:
         """
         Docstring 1
         """
         random.seed(datetime.datetime.now())
-        gesture_id = random.randint(0, 2)
+        gesture_id: int = random.randint(0, 2)
         return gesture_id
 
     def do_gesture(self, gesture_id):
