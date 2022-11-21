@@ -1,5 +1,6 @@
 # coding=utf-8
 
+import datetime
 import random
 import time
 from camera import Camera
@@ -26,8 +27,8 @@ verbal_feedback_se = {
         "En vinst för mig"
     ],
     "tie": [
-        "Oavgjort",
-        "Det blev lika"
+        "Oavgjort, vi kör igen",
+        "Det blev lika, vi kör igen"
     ],
 
     # Errors
@@ -116,6 +117,7 @@ class Connection:
         """
         Docstring 1
         """
+        random.seed(datetime.datetime.now())
         gesture_id = random.randint(0, 2)
         return gesture_id
 
@@ -151,7 +153,7 @@ class Connection:
         # Capture images
         gesture_images = []
         self.camera.subscribe(0, 0, 13, 30)
-        for _ in range(0, 10):
+        for _ in range(0, 5):
             gesture = self.camera.capture_frame()
             gesture_images.append(gesture)
         self.camera.unsubscribe()
@@ -237,6 +239,7 @@ class Connection:
         elif winner == 2:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["tie"]) - 1)
             self.speech_service.say(verbal_feedback_se["tie"][victory_saying_index])
+            self.run_game(False)
 
 
 def get_winner(humanGesture, computerGesture):
