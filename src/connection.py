@@ -162,18 +162,16 @@ class Connection:
 
             # self.do_gesture(img)
         self.camera.unsubscribe()
-        
+
 
     def capture_gesture(self):
         """
         Capture a gesture from the player.
-
         Returns
         -------
         int:
             Returns the gesture id. If no gesture is found, returns -1. If no 
             hand was found, returns -2. If an error occured, returns -3.
-
         """
         # Capture images
         gesture_images = []
@@ -235,14 +233,12 @@ class Connection:
     def say_result(self, humanGesture, computerGesture):
         """
         Docstring 1
-
         Parameters
         ----------
         humanGesture : int
             The gesture the human player chose.
         computerGesture : int
             The gesture the computer chose.
-
         Returns
         -------
         None.
@@ -270,16 +266,13 @@ class Connection:
 def get_winner(humanGesture, computerGesture):
     """
     Determine the winner of the game.
-
     A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
-
     Parameters
     ----------
     humanGesture : int
         The gesture the human player chose.
     computerGesture : int
         The gesture the computer chose.
-
     Returns
     -------
     int
