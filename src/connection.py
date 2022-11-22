@@ -8,6 +8,7 @@ from threading import Thread
 from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
+from rps_server_rest import make_http_request_to_ai
 
 verbal_feedback_se = {
     # General
@@ -77,13 +78,24 @@ class Connection:
         # self.tablet_service.preLoadImage(image_paths[key])
 
     def run_game(self, changeTracking=True):
+        """
+        Main driver function for allowing Pepper to play rock-paper-scissors.
+
+        Parameters
+        -----------
+        changeTracking: boolean
+            Is Pepper already tracking or should 
+            Pepper try to find a new target
+        """
+
         if changeTracking:
             self.startTracking()
 
         event = Event()
-        thread = Thread(target=self.showVideo, args=(event,))
-        thread.start()
-
+        picture_thread = Thread(target=self.send_video, args=(event,))
+        picture_thread.start()
+        tablet_thread = Thread(target=self.show_video, args=(event,))
+        tablet_thread.start()
 
         computer_gesture = self.select_gesture()
         self.shake_arm()
@@ -103,7 +115,7 @@ class Connection:
 
     def shake_arm(self):
         """
-        Shake arm and say rock paper scissors.
+        Pepper shakes her arm and says rock paper scissors.
         """
         names = ["RShoulderPitch", "RElbowRoll"]
         angleUp = [0.5, 1]  # Up
@@ -134,7 +146,12 @@ class Connection:
 
     def do_gesture(self, gesture_id):
         """
-        Docstring 1
+        Pepper performs a gesture based on parameter.
+
+        Parameters
+        ------------
+        gesture_id: int
+            Which gesture Pepper should do.
         """
         # self.tablet_service.hideImage()
         # 0 == rock, 1 == paper, 2 == scissors
@@ -147,22 +164,45 @@ class Connection:
         elif gesture_id == 2:
             self.tablet_service.showImage(image_paths["scissor"])
 
-    def showVideo(self, event):
+    def send_video(self, event):
         """
-        Docstring 1
+        Continously takes pictures and sends them to server for processing 
+        and Pepper access until event is set.
+
+        Parameters
+        ------------
+        event: Thread.event 
+            An event that tells the process when to stop
         """
         self.camera.subscribe(0, 1, 13, 30)
         while True:
-            # img = self.select_gesture()
             if event.is_set():
-                self.tablet_service.hideImage()
                 break
             image = self.camera.capture_frame()
-            cv2.imwrite('image0.png', image)
+            # cv2.imwrite('image0.png', image)
+            _ = predict_on_images(image)
 
-            # self.do_gesture(img)
         self.camera.unsubscribe()
 
+    def show_video(self, event):
+        """
+        Continously requests and show processed images from server 
+        until event is set.
+
+        Parameters
+        ------------
+        event: Thread.event 
+            An event that tells the process when to stop
+        """
+        i = 1
+
+        while True:
+            print("i=", i)
+            if event.is_set():
+                # self.tablet_service.hideImage()
+                break
+            i = 2 if i == 1 else  1
+            self.tablet_service.showImageNoCache("https://pepper.lillbonum.se/predict/latest?{}".format(i))
 
     def capture_gesture(self):
         """
@@ -187,6 +227,13 @@ class Connection:
         return prediction
 
     def startTracking(self):
+        """
+        Pepper goes into neutral position and then looks for 
+        a face to track. When found Pepper will verbally respond
+        and track that face until interrupted.
+        """
+
+
         # First, wake up.
         self.motion_service.wakeUp()
 
@@ -222,6 +269,10 @@ class Connection:
             self.stopTracking()
 
     def stopTracking(self):
+        """
+        Function to interrupt Pepper's face tracking
+        and set Pepper into a neutral position.
+        """
         # Stop tracker
         self.tracker_service.stopTracker()
         self.tracker_service.unregisterAllTargets()
@@ -232,7 +283,9 @@ class Connection:
 
     def say_result(self, humanGesture, computerGesture):
         """
-        Docstring 1
+        Pepper announces the result of the game and plays again
+        if the game was a tie or an error occurs.
+
         Parameters
         ----------
         humanGesture : int
