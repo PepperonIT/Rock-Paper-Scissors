@@ -2,6 +2,7 @@ import random
 import datetime
 
 
+@staticmethod
 def copy_exclude(list, exclude):
     """
     Takes a list, list[elemA], and a variable elemA, returns a copy of list with no 
@@ -31,10 +32,17 @@ class Memoize(type):
     def memoize(self):
         random.seed(datetime.datetime.now())
 
-    def new_memo(self, outcome):
-        memoization = copy_exclude(self.__memoization, None)
-        addition = copy_exclude(self.__game_values, outcome)
+    def update_memoization(self, outcome):
+        """
+        Takes the new game outcome as an argument and updates the memoization based on the arguments value.
+        """
+        memoize = copy_exclude(self.__game_values, outcome)
+        self.__memoization += memoize
 
-        if len(memoization) > self.__memoization_limit:
-            while len(memoization) > self.__memoization_limit:
-                self._memoization = self._memoization[1:]
+        if len(self.__memoization) > self.__memoization_limit:
+            """
+            If the memoization excedes the limit, repeatedly cut of the first element until it is within the limit.
+            """
+            while len(self.__memoization) > self.__memoization_limit:
+                self.__memoization = self.__memoization[1:]
+        return True
