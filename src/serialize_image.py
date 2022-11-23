@@ -1,34 +1,7 @@
-import cv2
 import numpy as np
-
-
-def serialize_image(fid, grayscale=False):
-    """
-    Serialize an image from a file.
-
-    Parameters
-    ----------
-    fid : str
-        Path to the image file to serialize.
-    grayscale : bool
-        If true, the image will be read as grayscale single channel image. Otherwise, 
-        the image will be read as an RGB image. Default value is `False`.
-
-    Returns
-    -------
-    (bytes, tuple, numpy.dtype)
-        A tuple containing the serialized image as `bytes`, the image shape as `tuple`, and the image data type as `numpy.dtype`.
-
-    Examples
-    --------
-    Serialize an image stored in a file will generate a `bytes` object.
-
-    >>> serialize_image("rgbw.png")
-    (b'$\x1c\xedL\xb1"\xe8\xa2\x00\xff\xff\xff', (2, 2, 1), dtype.uint8)
-    """
-    colormode = cv2.IMREAD_GRAYSCALE if grayscale else cv2.IMREAD_COLOR
-    im = cv2.imread(fid, colormode)
-    return np.array(im.tolist(), dtype=np.uint8).tobytes(), im.shape, im.dtype
+import base64
+import io
+from PIL import Image
 
 
 def serialize_image_array(arr, dtype=np.uint8):
@@ -50,6 +23,59 @@ def serialize_image_array(arr, dtype=np.uint8):
     if isinstance(arr, list):
         arr = np.array(arr, dtype=dtype)
     return arr.tobytes()
+
+
+def serialize_image_as_dataurl(arr):
+    """
+    Serialize an image stored as an array into a dataurl of mimetype 
+    `image/png`, e.g. `data:image/png;base64,<image_data>`.
+
+    Parameters
+    ----------
+    arr : numpy.ndarray or list
+        Image array to serialize.
+
+    Returns
+    -------
+    str
+        Serialized image as a dataurl.
+    """
+    buffer = io.BytesIO()
+    image = Image.fromarray(arr)
+    image.save(buffer, format="PNG")
+    img_str = base64.b64encode(buffer.getvalue())
+    data_url = "data:image/png;base64," + img_str
+    return data_url
+
+
+def deserialize_image_from_dataurl(dataurl):
+    """
+    Deserialize an image stored as a dataurl into a `numpy.ndarray`. The image 
+    must be of mimetype `image/png` and base64 encoded.
+
+    Parameters
+    ----------
+    dataurl : str
+        Dataurl to deserialize and must begin with `data:image/png;base64,`.
+
+    Raises
+    ------
+    ValueError
+        If the dataurl is not of mimetype `image/png` or is not base64 encoded.
+
+    Returns
+    -------
+    numpy.ndarray
+        Deserialized image from dataurl.
+
+    """
+    dataurl_prefix = "data:image/png;base64,"
+    if not dataurl.startswith(dataurl_prefix):
+        raise ValueError("dataurl must start with '{}'".format(dataurl_prefix))
+
+    img_str = dataurl[len(dataurl_prefix):]  # Remove dataurl prefix
+    image = Image.open(io.BytesIO(base64.b64decode(img_str)))
+    return np.array(image)
 
 
 def deserialize_image(arr, dtype=np.uint8, shape=None):
