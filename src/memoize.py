@@ -11,7 +11,7 @@ class Memoize():
     __instance = None
 
     @staticmethod
-    def getInstance():
+    def get_instance():
         if Memoize.__instance == None:
             Memoize()
         return Memoize.__instance
@@ -42,7 +42,7 @@ class Memoize():
         random.seed(datetime.datetime.now())
 
     def update_memoization(self, outcome):
-        # type: (int) -> bool
+        # type: (Memoize, int) -> None
         """
         Takes the new game outcome as an argument and updates the memoization based on the arguments value.
         """
@@ -55,4 +55,15 @@ class Memoize():
             """
             while len(self.__memoization) > self.__memoization_limit:
                 self.__memoization = self.__memoization[1:]
-        return True
+
+    def get_memoization(self):
+        # type: (Memoize) -> list[int]
+        return self.__memoization
+
+    def get_memoization_limit(self):
+        # type: (Memoize) -> int
+        return self.__memoization_limit
+
+    def dump_memoization(self):
+        # type: (Memoize) -> None
+        self.__memoization = []
