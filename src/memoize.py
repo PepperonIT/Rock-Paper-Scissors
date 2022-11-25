@@ -86,10 +86,11 @@ class Memoize():
 
     def memoized_random(self):
         # type: (Memoize) -> int
+        """
+        Returns a pseudo-randomized game choice, and updates the memoized data.
+        """
         selection = self.copy_exclude(self.__game_values, None)
         selection += self.copy_exclude(self.__memoization, None)
-        print(selection)
         choice = random.choice(selection)
-        print(choice)
         self.update_memoization(choice)
         return choice
