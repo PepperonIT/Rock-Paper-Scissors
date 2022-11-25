@@ -84,5 +84,12 @@ class Memoize():
         """
         self.__memoization = []
 
-    def memoize(self):
-        random.seed(datetime.datetime.now())
+    def memoized_random(self):
+        # type: (Memoize) -> int
+        selection = self.copy_exclude(self.__game_values, None)
+        selection += self.copy_exclude(self.__memoization, None)
+        print(selection)
+        choice = random.choice(selection)
+        print(choice)
+        self.update_memoization(choice)
+        return choice
