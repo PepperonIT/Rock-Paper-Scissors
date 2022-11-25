@@ -3,11 +3,6 @@ import datetime
 
 
 class Memoize():
-
-    """
-    Memoizing random function for RPS, returns an integer with one of three values, 0, 1, or 2.
-    """
-
     __instance = None
 
     @staticmethod
@@ -27,7 +22,7 @@ class Memoize():
 
     @staticmethod
     def copy_exclude(list, exclude):
-        # type: (list[int], int) -> list[int]
+        # type: (list[int], (int | None)) -> list[int]
         """
         Takes a list, list[elemA], and a variable elemA, returns a copy of list with no 
         instances of elemA.
@@ -38,15 +33,29 @@ class Memoize():
                 result_list.append(i)
         return result_list
 
-    def memoize(self):
-        random.seed(datetime.datetime.now())
+    def validate_input(self, game_input):
+        # type: (Memoize, int) -> int | None
+        """
+        Validates that the input is a predefined input, otherwise it returns None.
+        """
+        valid_inputs = self.copy_exclude(self.__game_values, None)
+        for i in valid_inputs:
+            if i == game_input:
+                return i
+        return None
 
     def update_memoization(self, outcome):
         # type: (Memoize, int) -> None
         """
         Takes the new game outcome as an argument and updates the memoization based on the arguments value.
+        If the input is invalid, i.e. does not exist in the predefined game inputs, the validate_input returns None 
+        and the function terminates.
         """
-        memoize = self.copy_exclude(self.__game_values, outcome)
+        validated_outcome = Memoize.validate_input(self, outcome)
+        if validated_outcome == None:
+            return
+
+        memoize = self.copy_exclude(self.__game_values, validated_outcome)
         self.__memoization += memoize
 
         if len(self.__memoization) > self.__memoization_limit:
@@ -64,6 +73,16 @@ class Memoize():
         # type: (Memoize) -> int
         return self.__memoization_limit
 
+    def get_game_inputs(self):
+        # type: (Memoize) -> list[int]
+        return self.__game_values
+
     def dump_memoization(self):
         # type: (Memoize) -> None
+        """
+        Empties the existing memoization.
+        """
         self.__memoization = []
+
+    def memoize(self):
+        random.seed(datetime.datetime.now())
