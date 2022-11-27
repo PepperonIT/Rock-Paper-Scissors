@@ -5,6 +5,7 @@ import random
 import time
 from camera import Camera
 from ai_rest import predict_on_images
+from memoize import Memoize
 
 verbal_feedback_se = {
     # General
@@ -117,8 +118,10 @@ class Connection:
         """
         Docstring 1
         """
-        random.seed(datetime.datetime.now())
-        gesture_id: int = random.randint(0, 2)
+        memo = Memoize.get_instance()
+        gesture_id = Memoize.memoized_random(memo)
+        # random.seed(datetime.datetime.now())
+        # gesture_id: int = random.randint(0, 2)
         return gesture_id
 
     def do_gesture(self, gesture_id):
