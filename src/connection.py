@@ -114,7 +114,7 @@ class Connection:
 
         self.motion_service.setAngles(names, angleUp, fraction_max_speed)
 
-    def select_gesture(self) -> int:
+    def select_gesture(self):
         """
         Docstring 1
         """
