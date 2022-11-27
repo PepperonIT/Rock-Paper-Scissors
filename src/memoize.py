@@ -1,5 +1,4 @@
 import random
-import datetime
 
 
 class Memoize():
@@ -7,18 +6,25 @@ class Memoize():
 
     @staticmethod
     def get_instance():
+        """
+        Returns a pointer to the active Memoization instance.
+        If there is none, it creates it.
+        """
         if Memoize.__instance == None:
             Memoize()
         return Memoize.__instance
 
     def __init__(self):
+        """
+        Initializer for the Memoization singleton.
+        """
         if Memoize.__instance != None:
             raise Exception("Singleton class initialized a second time.")
         else:
             Memoize.__instance = self
-            self.__game_values = [0, 1, 2]
-            self.__memoization_limit = 6
             self.__memoization = []
+            self.__memoization_limit = 6
+            self.__game_values = [0, 1, 2]
 
     @staticmethod
     def copy_exclude(list, exclude):
@@ -67,14 +73,23 @@ class Memoize():
 
     def get_memoization(self):
         # type: (Memoize) -> list[int]
+        """
+        Simple get method for __memoization.
+        """
         return self.__memoization
 
     def get_memoization_limit(self):
         # type: (Memoize) -> int
+        """
+        Simple get method for __memoization_limit.
+        """
         return self.__memoization_limit
 
     def get_game_inputs(self):
         # type: (Memoize) -> list[int]
+        """
+        Simple get method for __game_values.
+        """
         return self.__game_values
 
     def dump_memoization(self):
