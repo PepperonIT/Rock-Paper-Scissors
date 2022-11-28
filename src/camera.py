@@ -1,6 +1,6 @@
 import random
-import cv2
 import numpy
+from PIL import Image
 
 
 class Camera:
@@ -111,5 +111,5 @@ class Camera:
         self.subscribe(0, 1, 13, 60)
         image = self.capture_frame()
         self.unsubscribe()
-        cv2.imwrite(imagePath, image)
+        Image.fromarray(image).save(imagePath)
         print("Image captured!")
