@@ -3,6 +3,7 @@
 import datetime
 import random
 import time
+import platform
 from threading import Thread
 from threading import Event
 from camera import Camera
@@ -71,6 +72,9 @@ class Connection:
         self.mem = session.service("ALMemory")
         self.face = session.service("ALFaceDetection")
         self.camera = Camera(session)
+
+        # Determine if environment is running on a real robot or using an extrernal computer
+        self.running_on_pepper = "aldebaran" in platform.release()
 
         # Preload all images
         # for key in image_paths:
@@ -167,11 +171,18 @@ class Connection:
         Continously takes pictures and sends them to pepper to display on the 
         tablet until event is set.
 
+        This function requires the environment to be pepper, e.g. `self.running_on_pepper == True`. 
+        Otherwise it will return immediately and do nothing.
+
         Parameters
         ------------
         event: Thread.event 
             An event that tells the process when to stop
         """
+        if not self.running_on_pepper:
+            print("Not running on pepper, skipping video")
+            return
+
         self.camera.subscribe(0, 1, 11, fps)
         while True:
             if event.is_set():
