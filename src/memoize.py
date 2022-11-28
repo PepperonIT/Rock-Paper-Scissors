@@ -2,6 +2,13 @@ import random
 
 
 class Memoize():
+    """
+    Uses memoization to adjust the chosen game gesture for rock-paper-scissors. 
+    __memoization is where the memoized values are stored.
+    __memoization limit is twice the limit of memoization moves, if you want to memoize 
+    the last 3 moves it should be set to 6.
+    __game_value is the set of valid game moves.
+    """
     __instance = None
 
     @staticmethod
