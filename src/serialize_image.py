@@ -22,7 +22,7 @@ def serialize_image_array(arr, dtype=np.uint8):
     """
     if isinstance(arr, list):
         arr = np.array(arr, dtype=dtype)
-    return arr.tobytes()
+    return bytes(arr.tostring())
 
 
 def serialize_image_as_dataurl(arr):

@@ -86,7 +86,7 @@ class Connection:
             Pepper try to find a new target
         """
         stop_video_event = Event()
-        picture_thread = Thread(target=self.send_video, args=(stop_video_event, 10))
+        picture_thread = Thread(target=self.send_video, args=(stop_video_event, 15))
         picture_thread.start()
 
         if changeTracking:
@@ -98,8 +98,7 @@ class Connection:
         picture_thread.join()
         self.do_gesture(computer_gesture)
 
-        # human_gesture = self.capture_gesture()
-        human_gesture = 1  # TODO: Remove this line when capture gesture works
+        human_gesture = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
         self.say_result(human_gesture, computer_gesture)

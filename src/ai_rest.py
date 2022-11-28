@@ -2,7 +2,6 @@ from serialize_image import serialize_image_array
 import requests
 import base64
 import json
-import cv2
 
 
 def predict_on_images(images):
@@ -38,11 +37,6 @@ def predict_on_images(images):
         return -3
     else:
         response_json = response.json()
-
-    i = 0
-    for image in images:
-        cv2.imwrite("image" + str(i) + ".png", image)
-        i += 1
 
     # Do something with the reponse
     print("response: {}".format(response_json))
