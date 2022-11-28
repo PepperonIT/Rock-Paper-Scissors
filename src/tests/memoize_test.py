@@ -1,5 +1,5 @@
 import unittest
-from memoize import Memoize
+from src.memoize import Memoize
 
 
 class TestMemoize(unittest.TestCase):
