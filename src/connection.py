@@ -3,13 +3,12 @@
 import datetime
 import random
 import time
-import cv2
 from threading import Thread
 from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
+from PIL import Image
 from memoize import Memoize
-from rps_server_rest import make_http_request_to_ai
 
 verbal_feedback_se = {
     # General
@@ -63,7 +62,6 @@ class Connection:
     """
 
     def __init__(self, session):
-
         self.motion_service = session.service("ALMotion")
         self.tablet_service = session.service("ALTabletService")
         self.camera_service = session.service("ALVideoDevice")
@@ -88,21 +86,18 @@ class Connection:
             Is Pepper already tracking or should 
             Pepper try to find a new target
         """
+        stop_video_event = Event()
+        picture_thread = Thread(target=self.send_video, args=(stop_video_event, 15))
+        picture_thread.start()
 
         if changeTracking:
             self.startTracking()
 
-        event = Event()
-        picture_thread = Thread(target=self.send_video, args=(event,))
-        picture_thread.start()
-        tablet_thread = Thread(target=self.show_video, args=(event,))
-        tablet_thread.start()
-
         computer_gesture = self.select_gesture()
         self.shake_arm()
+        stop_video_event.set()
+        picture_thread.join()
         self.do_gesture(computer_gesture)
-        event.set()
-        time.sleep(1)
 
         human_gesture = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
@@ -144,7 +139,7 @@ class Connection:
         memo = Memoize.get_instance()
         gesture_id = Memoize.memoized_random(memo)
         # random.seed(datetime.datetime.now())
-        # gesture_id: int = random.randint(0, 2)
+        # gesture_id = random.randint(0, 2)
         return gesture_id
 
     def do_gesture(self, gesture_id):
@@ -167,45 +162,26 @@ class Connection:
         elif gesture_id == 2:
             self.tablet_service.showImage(image_paths["scissor"])
 
-    def send_video(self, event):
+    def send_video(self, event, fps):
         """
-        Continously takes pictures and sends them to server for processing 
-        and Pepper access until event is set.
+        Continously takes pictures and sends them to pepper to display on the 
+        tablet until event is set.
 
         Parameters
         ------------
         event: Thread.event 
             An event that tells the process when to stop
         """
-        self.camera.subscribe(0, 1, 13, 30)
+        self.camera.subscribe(0, 1, 11, fps)
         while True:
             if event.is_set():
                 break
             image = self.camera.capture_frame()
-            # cv2.imwrite('image0.png', image)
-            _ = predict_on_images(image)
+            time.sleep(1 / fps)
+            Image.fromarray(image).save("/home/nao/.local/share/ota/rps/latest.jpg", "JPEG")
+            self.tablet_service.showImageNoCache("http://198.18.0.1/ota_files/rps/latest.jpg")
 
-        self.camera.unsubscribe()
-
-    def show_video(self, event):
-        """
-        Continously requests and show processed images from server 
-        until event is set.
-
-        Parameters
-        ------------
-        event: Thread.event 
-            An event that tells the process when to stop
-        """
-        i = 1
-
-        while True:
-            print("i=", i)
-            if event.is_set():
-                # self.tablet_service.hideImage()
-                break
-            i = 2 if i == 1 else 1
-            self.tablet_service.showImageNoCache("https://pepper.lillbonum.se/predict/latest?{}".format(i))
+        self.tablet_service.hideImage()
 
     def capture_gesture(self):
         """
@@ -216,9 +192,11 @@ class Connection:
             Returns the gesture id. If no gesture is found, returns -1. If no 
             hand was found, returns -2. If an error occured, returns -3.
         """
+        if self.camera.camera_link is None:
+            self.camera.subscribe(0, 1, 11, 30)
+
         # Capture images
         gesture_images = []
-        self.camera.subscribe(0, 1, 13, 30)
         for _ in range(0, 2):
             gesture = self.camera.capture_frame()
             gesture_images.append(gesture)

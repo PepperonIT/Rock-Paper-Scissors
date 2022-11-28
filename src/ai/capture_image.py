@@ -3,7 +3,7 @@ sys.path.append("./src")
 
 from camera import Camera
 import qi
-import cv2
+from PIL import Image
 
 
 def capture_image():
@@ -24,7 +24,7 @@ def capture_image():
             print("Capturing...")
             image = camera.capture_frame()
             print("Captured")
-            cv2.imwrite("image" + str(i) + ".png", image)
+            Image.fromarray(image).save("image" + str(i) + ".png")
             i += 1
     except KeyboardInterrupt:
         print("Interrupted by user, shutting down")

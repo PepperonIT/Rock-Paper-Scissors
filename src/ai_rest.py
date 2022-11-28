@@ -2,7 +2,6 @@ from serialize_image import serialize_image_array
 import requests
 import base64
 import json
-import cv2
 
 
 def predict_on_images(images):
@@ -31,18 +30,13 @@ def predict_on_images(images):
     request_url = "https://pepper.lillbonum.se/predict/hand"
 
     # Send HTTP request
-    response = requests.get(request_url, data=request_body, headers=request_headers)
+    response = requests.get(request_url, data=request_body, headers=request_headers, verify=False)
     if response.status_code != 200:
         print("Status code: " + str(response.status_code))
         print("Error: " + response.text)
         return -3
     else:
         response_json = response.json()
-
-    i = 0
-    for image in images:
-        cv2.imwrite("image" + str(i) + ".png", image)
-        i += 1
 
     # Do something with the reponse
     print("response: {}".format(response_json))
