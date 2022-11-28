@@ -28,7 +28,7 @@ def predict_on_images(images):
         "shape": images[0].shape
     })
     request_headers = {"Content-Type": "application/json"}
-    request_url = "http://host.docker.internal:5000/"
+    request_url = "https://pepper.lillbonum.se/predict/hand"
 
     # Send HTTP request
     response = requests.get(request_url, data=request_body, headers=request_headers)

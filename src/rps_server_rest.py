@@ -40,7 +40,7 @@ def make_http_request_to_ai(image):
         "shape": [1, 100, 100, 1]
     })
 
-    URL = "http://host.docker.internal:5000/predict/hand"
+    URL = "https://pepper.lillbonum.se/predict/hand"
     response = requests.get(URL, data=request_body, headers=request_headers)
     if response.status_code == 200:
         print(response.json())
