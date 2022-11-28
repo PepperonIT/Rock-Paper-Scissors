@@ -333,9 +333,9 @@ class Connection:
         int
             0 if human wins, 1 if computer wins, 2 if tie.
         """
+        if humanGesture == computerGesture:
+            return 2
         if humanGesture == 0:  # rock
-            if computerGesture == 0:
-                return 2
             if computerGesture == 1:
                 return 1
             if computerGesture == 2:
@@ -343,8 +343,6 @@ class Connection:
         elif humanGesture == 1:  # paper
             if computerGesture == 0:
                 return 0
-            if computerGesture == 1:
-                return 2
             if computerGesture == 2:
                 return 1
         elif humanGesture == 2:  # scissors
@@ -352,5 +350,3 @@ class Connection:
                 return 1
             if computerGesture == 1:
                 return 0
-            if computerGesture == 2:
-                return 2
