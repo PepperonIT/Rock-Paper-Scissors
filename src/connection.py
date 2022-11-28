@@ -294,7 +294,7 @@ class Connection:
             self.speech_service.say(verbal_feedback_se["error_hand_not_found"])
             self.run_game(False)
 
-        winner = get_winner(humanGesture, computerGesture)
+        winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
             self.speech_service.say(verbal_feedback_se["human_victory"][victory_saying_index])
@@ -306,40 +306,36 @@ class Connection:
             self.speech_service.say(verbal_feedback_se["tie"][victory_saying_index])
             self.run_game(False)
 
-
-def get_winner(humanGesture, computerGesture):
-    """
-    Determine the winner of the game.
-    A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
-    Parameters
-    ----------
-    humanGesture : int
-        The gesture the human player chose.
-    computerGesture : int
-        The gesture the computer chose.
-    Returns
-    -------
-    int
-        0 if human wins, 1 if computer wins, 2 if tie.
-    """
-    if humanGesture == 0:  # rock
-        if computerGesture == 0:
+    @staticmethod
+    def get_winner(humanGesture, computerGesture):
+        """
+        Determine the winner of the game.
+        A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
+        Parameters
+        ----------
+        humanGesture : int
+            The gesture the human player chose.
+        computerGesture : int
+            The gesture the computer chose.
+        Returns
+        -------
+        int
+            0 if human wins, 1 if computer wins, 2 if tie.
+        """
+        if humanGesture == computerGesture:
             return 2
-        if computerGesture == 1:
-            return 1
-        if computerGesture == 2:
-            return 0
-    elif humanGesture == 1:  # paper
-        if computerGesture == 0:
-            return 0
-        if computerGesture == 1:
-            return 2
-        if computerGesture == 2:
-            return 1
-    elif humanGesture == 2:  # scissors
-        if computerGesture == 0:
-            return 1
-        if computerGesture == 1:
-            return 0
-        if computerGesture == 2:
-            return 2
+        if humanGesture == 0:  # rock
+            if computerGesture == 1:
+                return 1
+            if computerGesture == 2:
+                return 0
+        elif humanGesture == 1:  # paper
+            if computerGesture == 0:
+                return 0
+            if computerGesture == 2:
+                return 1
+        elif humanGesture == 2:  # scissors
+            if computerGesture == 0:
+                return 1
+            if computerGesture == 1:
+                return 0
