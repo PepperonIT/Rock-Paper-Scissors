@@ -8,6 +8,7 @@ from threading import Thread
 from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
+from memoize import Memoize
 from rps_server_rest import make_http_request_to_ai
 
 verbal_feedback_se = {
@@ -140,8 +141,10 @@ class Connection:
         """
         Docstring 1
         """
-        random.seed(datetime.datetime.now())
-        gesture_id = random.randint(0, 2)
+        memo = Memoize.get_instance()
+        gesture_id = Memoize.memoized_random(memo)
+        # random.seed(datetime.datetime.now())
+        # gesture_id: int = random.randint(0, 2)
         return gesture_id
 
     def do_gesture(self, gesture_id):
@@ -201,7 +204,7 @@ class Connection:
             if event.is_set():
                 # self.tablet_service.hideImage()
                 break
-            i = 2 if i == 1 else  1
+            i = 2 if i == 1 else 1
             self.tablet_service.showImageNoCache("https://pepper.lillbonum.se/predict/latest?{}".format(i))
 
     def capture_gesture(self):
@@ -232,7 +235,6 @@ class Connection:
         a face to track. When found Pepper will verbally respond
         and track that face until interrupted.
         """
-
 
         # First, wake up.
         self.motion_service.wakeUp()
