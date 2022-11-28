@@ -30,7 +30,7 @@ def predict_on_images(images):
     request_url = "https://pepper.lillbonum.se/predict/hand"
 
     # Send HTTP request
-    response = requests.get(request_url, data=request_body, headers=request_headers)
+    response = requests.get(request_url, data=request_body, headers=request_headers, verify=False)
     if response.status_code != 200:
         print("Status code: " + str(response.status_code))
         print("Error: " + response.text)
