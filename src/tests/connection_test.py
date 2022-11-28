@@ -29,11 +29,22 @@ class TestConnection(unittest.TestCase):
     def test_scissors(self):
         rock = Connection.get_winner(self.rock, self.scissors)
         paper = Connection.get_winner(self.paper, self.scissors)
-        scissors = Connection.get_winner(self.rock, self.paper)
+        scissors = Connection.get_winner(self.scissors, self.scissors)
 
         self.assertEqual(rock, 0)
         self.assertEqual(paper, 1)
         self.assertEqual(scissors, 2)
+
+    def test_invalid_input(self):
+        invalid_negative_int_human = Connection.get_winner(-1, self.rock)
+        invalid_negative_int_computer = Connection.get_winner(self.paper, -1)
+        invalid_int_human = Connection.get_winner(1000, self.rock)
+        invalid_int_computer = Connection.get_winner(self.paper, 1000)
+
+        self.assertEqual(invalid_negative_int_human, None)
+        self.assertEqual(invalid_negative_int_computer, None)
+        self.assertEqual(invalid_int_human, None)
+        self.assertEqual(invalid_int_computer, None)
 
 
 if __name__ == '__main__':
