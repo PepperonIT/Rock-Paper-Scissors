@@ -3,9 +3,13 @@
 import datetime
 import random
 import time
+import cv2
+from threading import Thread
+from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
 from memoize import Memoize
+from rps_server_rest import make_http_request_to_ai
 
 verbal_feedback_se = {
     # General
@@ -75,25 +79,44 @@ class Connection:
         # self.tablet_service.preLoadImage(image_paths[key])
 
     def run_game(self, changeTracking=True):
+        """
+        Main driver function for allowing Pepper to play rock-paper-scissors.
+
+        Parameters
+        -----------
+        changeTracking: boolean
+            Is Pepper already tracking or should 
+            Pepper try to find a new target
+        """
+
         if changeTracking:
             self.startTracking()
+
+        event = Event()
+        picture_thread = Thread(target=self.send_video, args=(event,))
+        picture_thread.start()
+        tablet_thread = Thread(target=self.show_video, args=(event,))
+        tablet_thread.start()
 
         computer_gesture = self.select_gesture()
         self.shake_arm()
         self.do_gesture(computer_gesture)
+        event.set()
+        time.sleep(1)
+
         human_gesture = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
         self.say_result(human_gesture, computer_gesture)
         time.sleep(3)
-        self.hide_image()
+        self.tablet_service.hideImage()
 
         if changeTracking:
             self.stopTracking()
 
     def shake_arm(self):
         """
-        Shake arm and say rock paper scissors.
+        Pepper shakes her arm and says rock paper scissors.
         """
         names = ["RShoulderPitch", "RElbowRoll"]
         angleUp = [0.5, 1]  # Up
@@ -126,9 +149,14 @@ class Connection:
 
     def do_gesture(self, gesture_id):
         """
-        Docstring 1
+        Pepper performs a gesture based on parameter.
+
+        Parameters
+        ------------
+        gesture_id: int
+            Which gesture Pepper should do.
         """
-        self.tablet_service.hideImage()
+        # self.tablet_service.hideImage()
         # 0 == rock, 1 == paper, 2 == scissors
         if gesture_id == 0:
             self.tablet_service.showImage(image_paths["rock"])
@@ -139,24 +167,59 @@ class Connection:
         elif gesture_id == 2:
             self.tablet_service.showImage(image_paths["scissor"])
 
-    def hide_image(self):
-        self.tablet_service.hideImage()
+    def send_video(self, event):
+        """
+        Continously takes pictures and sends them to server for processing 
+        and Pepper access until event is set.
+
+        Parameters
+        ------------
+        event: Thread.event 
+            An event that tells the process when to stop
+        """
+        self.camera.subscribe(0, 1, 13, 30)
+        while True:
+            if event.is_set():
+                break
+            image = self.camera.capture_frame()
+            # cv2.imwrite('image0.png', image)
+            _ = predict_on_images(image)
+
+        self.camera.unsubscribe()
+
+    def show_video(self, event):
+        """
+        Continously requests and show processed images from server 
+        until event is set.
+
+        Parameters
+        ------------
+        event: Thread.event 
+            An event that tells the process when to stop
+        """
+        i = 1
+
+        while True:
+            print("i=", i)
+            if event.is_set():
+                # self.tablet_service.hideImage()
+                break
+            i = 2 if i == 1 else 1
+            self.tablet_service.showImageNoCache("https://pepper.lillbonum.se/predict/latest?{}".format(i))
 
     def capture_gesture(self):
         """
         Capture a gesture from the player.
-
         Returns
         -------
         int:
             Returns the gesture id. If no gesture is found, returns -1. If no 
             hand was found, returns -2. If an error occured, returns -3.
-
         """
         # Capture images
         gesture_images = []
-        self.camera.subscribe(0, 0, 13, 30)
-        for _ in range(0, 5):
+        self.camera.subscribe(0, 1, 13, 30)
+        for _ in range(0, 2):
             gesture = self.camera.capture_frame()
             gesture_images.append(gesture)
         self.camera.unsubscribe()
@@ -167,6 +230,12 @@ class Connection:
         return prediction
 
     def startTracking(self):
+        """
+        Pepper goes into neutral position and then looks for 
+        a face to track. When found Pepper will verbally respond
+        and track that face until interrupted.
+        """
+
         # First, wake up.
         self.motion_service.wakeUp()
 
@@ -202,6 +271,10 @@ class Connection:
             self.stopTracking()
 
     def stopTracking(self):
+        """
+        Function to interrupt Pepper's face tracking
+        and set Pepper into a neutral position.
+        """
         # Stop tracker
         self.tracker_service.stopTracker()
         self.tracker_service.unregisterAllTargets()
@@ -212,7 +285,8 @@ class Connection:
 
     def say_result(self, humanGesture, computerGesture):
         """
-        Docstring 1
+        Pepper announces the result of the game and plays again
+        if the game was a tie or an error occurs.
 
         Parameters
         ----------
@@ -220,7 +294,6 @@ class Connection:
             The gesture the human player chose.
         computerGesture : int
             The gesture the computer chose.
-
         Returns
         -------
         None.
@@ -248,16 +321,13 @@ class Connection:
 def get_winner(humanGesture, computerGesture):
     """
     Determine the winner of the game.
-
     A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
-
     Parameters
     ----------
     humanGesture : int
         The gesture the human player chose.
     computerGesture : int
         The gesture the computer chose.
-
     Returns
     -------
     int

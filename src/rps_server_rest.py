@@ -45,6 +45,6 @@ def make_http_request_to_ai(image):
     if response.status_code == 200:
         print(response.json())
     else:
-        print(f"AI Prediction: Something went wrong.")
-        print(f"               Status code: {response.status_code}")
-        print(f"               Response: {response.text}")
+        print("AI Prediction: Something went wrong.")
+        print("               Status code: {}".format(response.status_code))
+        print("               Response: {}".format(response.text))
