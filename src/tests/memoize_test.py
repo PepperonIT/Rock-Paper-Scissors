@@ -57,6 +57,18 @@ class TestMemoize(unittest.TestCase):
         self.assertEqual(invalid_string, None)
         self.assertEqual(invalid_list, None)
 
+    def test_cut_memoization(self):
+        memo = Memoize.get_instance()
+        Memoize.dump_memoization(memo)
+
+        for i in range(Memoize.get_memoization_limit(memo)):
+            Memoize.update_memoization(memo, 0)
+
+        Memoize.update_memoization(memo, 1)
+        expected_memoization = [2, 2, 0, 2]
+
+        self.assertEqual(Memoize.get_memoization(memo), expected_memoization)
+
     def test_update_memoization_one_outcome(self):
         """
         Test that the outcome of one game result gives the correct memoization.
@@ -65,13 +77,14 @@ class TestMemoize(unittest.TestCase):
         Memoize.dump_memoization(memo)
         Memoize.update_memoization(memo, 2)
         result = Memoize.get_memoization(memo)
-        self.assertEqual(result, [0, 1], "Failed")
+        self.assertEqual(result, [0, 1])
 
     def test_update_memoization_limit(self):
         """
         Test that the memoization limit is adhered to.
         """
         memo = Memoize.get_instance()
+        Memoize.dump_memoization(memo)
         limit = Memoize.get_memoization_limit(memo)
         for i in range(limit + 1):
             Memoize.update_memoization(memo, 0)
@@ -85,6 +98,7 @@ class TestMemoize(unittest.TestCase):
         """
         memo = Memoize.get_instance()
         memo_limit = Memoize.get_memoization_limit(memo)
+        Memoize.dump_memoization(memo)
 
         for i in range(memo_limit // 2):
             Memoize.update_memoization(memo, 0)
@@ -111,6 +125,16 @@ class TestMemoize(unittest.TestCase):
         Memoize.update_memoization(memo, -1)
         result = Memoize.get_memoization(memo)
         self.assertEqual(len(result), 0)
+
+    def test_proportions(self):
+        memo = Memoize.get_instance()
+        game_results = []
+        cumulative = [0, 0, 0]
+        for i in range(1000000):
+            game_results.append(Memoize.memoized_random(memo))
+        for i in game_results:
+            cumulative[i] += 1
+        print(cumulative)
 
 
 if __name__ == '__main__':
