@@ -60,6 +60,14 @@ See the [development container README](.devcontainer/README.md) for more informa
 
 When communicating with the host machine via network, e.g. to access local instance of [rps server](https://github.com/d7017e/rps_server), please use the following address: `host.docker.internal`. To make a http request to a local rps server from the devcontainer, use the address: `http://host.docker.internal:5000`. Change the port number if you are using a different port.
 
+### Documentation
+
+The documentation is generated using [Sphinx](https://www.sphinx-doc.org/en/master/). To generate the documentation, run:
+
+```bash
+make html
+```
+
 ### Debug
 
 To start a debug session, the [debugpy](https://pypi.org/project/debugpy/) module must be installed in the environment, see [Dependencies](#dependencies).

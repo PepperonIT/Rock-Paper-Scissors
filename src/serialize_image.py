@@ -45,7 +45,7 @@ def deserialize_image(arr, dtype=np.uint8, shape=None):
     Deserialize an RGB image of size 2x2px stored as a byte array into a `numpy.ndarray`.
 
     >>> import numpy as np
-    >>> deserialize_image(b'$\x1c\xedL\xb1"\xe8\xa2\x00\xff\xff\xff', np.uint8, (2, 2, 3))
+    >>> deserialize_image(b'$\\x1c\\xedL\\xb1"\\xe8\\xa2\\x00\\xff\\xff\\xff', np.uint8, (2, 2, 3))
     array([[[ 36,  28, 237],
             [ 76, 177,  34]],
 
