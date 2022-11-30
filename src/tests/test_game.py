@@ -1,0 +1,39 @@
+import unittest
+from src.game import Game
+
+
+class TestGame(unittest.TestCase):
+    def test_game_rounds_defaulting(self):
+        default_game = Game()
+        custom_game = Game(10)
+        invalid_game = Game(-1)
+
+        self.assertEqual(default_game.get_round_limit(), 3)
+        self.assertEqual(custom_game.get_round_limit(), 10)
+        self.assertEqual(invalid_game.get_round_limit(), 3)
+
+    def test_update_game(self):
+        game = Game()
+
+        game.update_game("Human")
+        self.assertEqual(game.get_human_score(), 1)
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertEqual(game.get_current_round(), 1)
+        self.assertFalse(game.check_winner())
+
+        game.update_game("Computer")
+        self.assertEqual(game.get_human_score(), 1)
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertEqual(game.get_current_round(), 2)
+        self.assertFalse(game.check_winner())
+
+        game.update_game("Human")
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertEqual(game.get_current_round(), 3)
+        self.assertTrue(game.check_winner())
+        self.assertEqual(game.get_winner(), "Human")
+
+
+if __name__ == '__main__':
+    unittest.main()
