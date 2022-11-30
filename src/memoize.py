@@ -8,6 +8,8 @@ class Memoize():
     __memoization limit is twice the limit of memoization moves, if you want to memoize 
     the last 3 moves it should be set to 6.
     __game_value is the set of valid game moves.
+
+    Note that changing these game settings might affect the unit tests.
     """
     __instance = None
 
@@ -78,6 +80,9 @@ class Memoize():
                 self.__memoization.remove(outcome)
 
         memoize = self.copy_exclude(self.__game_values, validated_outcome)
+        # If you want more even randomness activate the shuffle method.
+        # This will cause most of the unit tests to fail, since some of them assume that
+        # the memoization entry method is consistent.
         # random.shuffle(memoize)
         self.__memoization += memoize
 
