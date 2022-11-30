@@ -78,6 +78,7 @@ class Memoize():
                 self.__memoization.remove(outcome)
 
         memoize = self.copy_exclude(self.__game_values, validated_outcome)
+        # random.shuffle(memoize)
         self.__memoization += memoize
 
         if len(self.__memoization) > self.__memoization_limit:

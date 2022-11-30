@@ -60,12 +60,13 @@ class TestMemoize(unittest.TestCase):
     def test_cut_memoization(self):
         memo = Memoize.get_instance()
         Memoize.dump_memoization(memo)
+        moves = Memoize.get_game_inputs(memo)
 
         for i in range(Memoize.get_memoization_limit(memo)):
-            Memoize.update_memoization(memo, 0)
+            Memoize.update_memoization(memo, moves[0])
 
-        Memoize.update_memoization(memo, 1)
-        expected_memoization = [2, 2, 0, 2]
+        Memoize.update_memoization(memo, moves[1])
+        expected_memoization = [moves[2], moves[2], moves[0], moves[2]]
 
         self.assertEqual(Memoize.get_memoization(memo), expected_memoization)
 
@@ -75,9 +76,12 @@ class TestMemoize(unittest.TestCase):
         """
         memo = Memoize.get_instance()
         Memoize.dump_memoization(memo)
-        Memoize.update_memoization(memo, 2)
+        moves = Memoize.get_game_inputs(memo)
+
+        Memoize.update_memoization(memo, moves[2])
+
         result = Memoize.get_memoization(memo)
-        self.assertEqual(result, [0, 1])
+        self.assertEqual(result, [moves[0], moves[1]])
 
     def test_update_memoization_limit(self):
         """
@@ -85,9 +89,11 @@ class TestMemoize(unittest.TestCase):
         """
         memo = Memoize.get_instance()
         Memoize.dump_memoization(memo)
+        moves = Memoize.get_game_inputs(memo)
+
         limit = Memoize.get_memoization_limit(memo)
         for i in range(limit + 1):
-            Memoize.update_memoization(memo, 0)
+            Memoize.update_memoization(memo, moves[0])
         result = Memoize.get_memoization(memo)
         self.assertEqual(len(result), limit)
 
@@ -99,15 +105,16 @@ class TestMemoize(unittest.TestCase):
         memo = Memoize.get_instance()
         memo_limit = Memoize.get_memoization_limit(memo)
         Memoize.dump_memoization(memo)
+        moves = Memoize.get_game_inputs(memo)
 
         for i in range(memo_limit // 2):
-            Memoize.update_memoization(memo, 0)
+            Memoize.update_memoization(memo, moves[0])
         for i in range(memo_limit // 2):
-            Memoize.update_memoization(memo, 1)
+            Memoize.update_memoization(memo, moves[1])
 
         memoized = Memoize.get_memoization(memo)
         game_inputs = Memoize.get_game_inputs(memo)
-        repeated_memo = Memoize.copy_exclude(game_inputs, 1)
+        repeated_memo = Memoize.copy_exclude(game_inputs, moves[1])
 
         expected_memo = []
         for i in range(memo_limit // 2):
@@ -122,19 +129,30 @@ class TestMemoize(unittest.TestCase):
         """
         memo = Memoize.get_instance()
         Memoize.dump_memoization(memo)
+
         Memoize.update_memoization(memo, -1)
         result = Memoize.get_memoization(memo)
         self.assertEqual(len(result), 0)
 
     def test_proportions(self):
+        """
+
+        """
         memo = Memoize.get_instance()
-        game_results = []
-        cumulative = [0, 0, 0]
-        for i in range(1000000):
-            game_results.append(Memoize.memoized_random(memo))
-        for i in game_results:
-            cumulative[i] += 1
-        print(cumulative)
+        moves = Memoize.get_game_inputs(memo)
+
+        runs = 1000
+        cumulative = {}
+        for game_move in moves:
+            cumulative[game_move] = 0
+
+        for i in range(runs):
+            cumulative[Memoize.memoized_random(memo)] += 1
+
+        for i in cumulative:
+            res = float(cumulative[i]) / float(runs)
+            self.assertLess(res, 0.4)
+            print(i, " was selected: %10.4f" % (res), " of the time")
 
 
 if __name__ == '__main__':
