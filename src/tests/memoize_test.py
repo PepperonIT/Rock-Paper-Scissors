@@ -20,7 +20,7 @@ class TestMemoize(unittest.TestCase):
 
     def test_copy_exclude_is_copy(self):
         """
-        Test that copy_exclude does in fact create a copy and does not manipulate 
+        Test that copy_exclude does in fact create a copy and does not manipulate
         the original data.
         """
         test_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
@@ -99,8 +99,8 @@ class TestMemoize(unittest.TestCase):
 
     def test_update_memoization_limit_slicing(self):
         """
-        Test that the memoization limiter functions as it should when 
-        slicing off old memoized values. 
+        Test that the memoization limiter functions as it should when
+        slicing off old memoized values.
         """
         memo = Memoize.get_instance()
         memo_limit = Memoize.get_memoization_limit(memo)
@@ -136,7 +136,7 @@ class TestMemoize(unittest.TestCase):
 
     def test_proportions(self):
         """
-
+        Run the game for 1 000 turns, fail if one outcome occurs 40% of the time or more.
         """
         memo = Memoize.get_instance()
         moves = Memoize.get_game_inputs(memo)
