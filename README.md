@@ -62,11 +62,13 @@ When communicating with the host machine via network, e.g. to access local insta
 
 ### Documentation
 
-The documentation is generated using [Sphinx](https://www.sphinx-doc.org/en/master/). To generate the documentation, run:
+The documentation is generated using [Sphinx](https://www.sphinx-doc.org/en/master/). To generate the documentation, change directory to `docs/` and run:
 
 ```bash
 make html
 ```
+
+The generated documentation is then available in the `docs/build/html/` folder. To view the documentation, open the `index.html` file in a browser.
 
 ### Debug
 
