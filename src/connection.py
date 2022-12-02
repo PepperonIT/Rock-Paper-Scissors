@@ -13,6 +13,7 @@ from memoize import Memoize
 
 verbal_feedback_se = {
     # General
+    "tracking_start": "Jag letar efter någon att spela med",
     "welcome": "Oh hej",
     "instructions": "SKRIV INSTRUKTIONER HÄR",
 
@@ -42,6 +43,38 @@ verbal_feedback_se = {
     "error_no_gesture": "Jag kunde inte förstå dig. Vi prövar igen",
 }
 
+verbal_feedback_en = {
+    # General
+    "tracking_start": "I'm looking for someone to play with",
+    "welcome": "Oh hi",
+    "instructions": "SKRIV INSTRUKTIONER HÄR",
+
+    "rock_paper_scissors": [
+        "rock",
+        "paper",
+        "scissors"
+    ],
+
+    # Result messages
+    "human_victory": [
+        "Congratulations, you won!",
+        "Beginner's luck, I'll win next time!"
+    ],
+    "computer_victory": [
+        "I won",
+        "A victory for me"
+    ],
+    "tie": [
+        "Tie, let's play again",
+        "It was a tie, let's play again"
+    ],
+
+    # Errors
+    "error_general": "I'm a bit confused, could you be a little more cleare?",
+    "error_hand_not_found": "I couldn't see your hand. Could you rais a little bit higher and let's play again!",
+    "error_no_gesture": "I couldn't understand you, let's play again!",
+}
+
 # image_paths_from_pepper = {
 #     "bag": "/data/home/nao/pepperonit/rps/images/RPS_bag.jpg",
 #     "rock": "/data/home/nao/pepperonit/rps/images/RPS_rock.jpg",
@@ -62,7 +95,7 @@ class Connection:
     Docstring 1
     """
 
-    def __init__(self, session):
+    def __init__(self, session, language):
         self.motion_service = session.service("ALMotion")
         self.tablet_service = session.service("ALTabletService")
         self.camera_service = session.service("ALVideoDevice")
@@ -72,6 +105,8 @@ class Connection:
         self.mem = session.service("ALMemory")
         self.face = session.service("ALFaceDetection")
         self.camera = Camera(session)
+        self.speech_service.setLanguage(language)
+        self.verbal_feedback = verbal_feedback_se if language == 'Swedish' else verbal_feedback_en
 
         # Determine if environment is running on a real robot or using an extrernal computer
         self.running_on_pepper = "aldebaran" in platform.release()
@@ -131,7 +166,7 @@ class Connection:
             self.motion_service.setAngles(names, angleUp, fraction_max_speed)
             time.sleep(motion_delay)
             self.motion_service.setAngles(names, angleDown, fraction_max_speed)
-            self.speech_service.say(verbal_feedback_se["rock_paper_scissors"][i])
+            self.speech_service.say(self.verbal_feedback["rock_paper_scissors"][i])
             time.sleep(0.3 * motion_delay)
 
         self.motion_service.setAngles(names, angleUp, fraction_max_speed)
@@ -246,14 +281,13 @@ class Connection:
         print("ALTracker successfully started.")
         print("Use Ctrl+c to stop this script.")
 
-        self.speech_service.say(
-            'Jag letar efter någon att spela med')
+        self.speech_service.say(self.verbal_feedback["tracking_start"])
 
         try:
             while self.mem.getData('FaceDetected') == None or self.mem.getData('FaceDetected') == []:
                 time.sleep(2)
 
-            self.speech_service.say(verbal_feedback_se["welcome"])
+            self.speech_service.say(self.verbal_feedback["welcome"])
         except KeyboardInterrupt:
             print
             print("Interrupted by user")
@@ -289,22 +323,22 @@ class Connection:
         None.
         """
         if humanGesture == -1:
-            self.speech_service.say(verbal_feedback_se["error_no_gesture"])
+            self.speech_service.say(self.verbal_feedback["error_no_gesture"])
             self.run_game(False)
         elif humanGesture == -2:
-            self.speech_service.say(verbal_feedback_se["error_hand_not_found"])
+            self.speech_service.say(self.verbal_feedback["error_hand_not_found"])
             self.run_game(False)
 
         winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
-            self.speech_service.say(verbal_feedback_se["human_victory"][victory_saying_index])
+            self.speech_service.say(self.verbal_feedback["human_victory"][victory_saying_index])
         elif winner == 1:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["computer_victory"]) - 1)
-            self.speech_service.say(verbal_feedback_se["computer_victory"][victory_saying_index])
+            self.speech_service.say(self.verbal_feedback["computer_victory"][victory_saying_index])
         elif winner == 2:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["tie"]) - 1)
-            self.speech_service.say(verbal_feedback_se["tie"][victory_saying_index])
+            self.speech_service.say(self.verbal_feedback["tie"][victory_saying_index])
             self.run_game(False)
 
     @staticmethod
