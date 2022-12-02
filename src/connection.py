@@ -3,11 +3,13 @@
 import datetime
 import random
 import time
+import platform
 from threading import Thread
 from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
 from PIL import Image
+from memoize import Memoize
 
 verbal_feedback_se = {
     # General
@@ -106,6 +108,9 @@ class Connection:
         self.speech_service.setLanguage(language)
         self.verbal_feedback = verbal_feedback_se if language == 'Swedish' else verbal_feedback_en
 
+        # Determine if environment is running on a real robot or using an extrernal computer
+        self.running_on_pepper = "aldebaran" in platform.release()
+
         # Preload all images
         # for key in image_paths:
         # self.tablet_service.preLoadImage(image_paths[key])
@@ -121,7 +126,7 @@ class Connection:
             Pepper try to find a new target
         """
         stop_video_event = Event()
-        picture_thread = Thread(target=self.send_video, args=(stop_video_event, 10))
+        picture_thread = Thread(target=self.send_video, args=(stop_video_event, 15))
         picture_thread.start()
 
         if changeTracking:
@@ -134,7 +139,6 @@ class Connection:
         self.do_gesture(computer_gesture)
 
         human_gesture = self.capture_gesture()
-        # human_gesture = 1  # TODO: Remove this line when capture gesture works
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
         self.say_result(human_gesture, computer_gesture)
@@ -171,8 +175,10 @@ class Connection:
         """
         Docstring 1
         """
-        random.seed(datetime.datetime.now())
-        gesture_id = random.randint(0, 2)
+        memo = Memoize.get_instance()
+        gesture_id = Memoize.memoized_random(memo)
+        # random.seed(datetime.datetime.now())
+        # gesture_id = random.randint(0, 2)
         return gesture_id
 
     def do_gesture(self, gesture_id):
@@ -200,21 +206,29 @@ class Connection:
         Continously takes pictures and sends them to pepper to display on the 
         tablet until event is set.
 
+        This function requires the environment to be pepper, e.g. `self.running_on_pepper == True`. 
+        Otherwise it will return immediately and do nothing.
+
         Parameters
         ------------
         event: Thread.event 
             An event that tells the process when to stop
         """
+        if not self.running_on_pepper:
+            print("Not running on pepper, skipping video")
+            return
+
         self.camera.subscribe(0, 1, 11, fps)
+        self.tablet_service.showWebview("http://198.18.0.1/ota_files/rps/image_feed.html")
+
         while True:
             if event.is_set():
                 break
             image = self.camera.capture_frame()
             time.sleep(1 / fps)
             Image.fromarray(image).save("/home/nao/.local/share/ota/rps/latest.jpg", "JPEG")
-            self.tablet_service.showImageNoCache("http://198.18.0.1/ota_files/rps/latest.jpg")
 
-        self.tablet_service.hideImage()
+        self.tablet_service.hideWebview()
 
     def capture_gesture(self):
         """
@@ -315,7 +329,7 @@ class Connection:
             self.speech_service.say(self.verbal_feedback["error_hand_not_found"])
             self.run_game(False)
 
-        winner = get_winner(humanGesture, computerGesture)
+        winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
             victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
             self.speech_service.say(self.verbal_feedback["human_victory"][victory_saying_index])
@@ -327,40 +341,35 @@ class Connection:
             self.speech_service.say(self.verbal_feedback["tie"][victory_saying_index])
             self.run_game(False)
 
+    @staticmethod
+    def get_winner(humanGesture, computerGesture):
+        """
+        Determine the winner of the game.
+        A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
+        Parameters
+        ----------
+        humanGesture : int
+            The gesture the human player chose.
+        computerGesture : int
+            The gesture the computer chose.
 
-def get_winner(humanGesture, computerGesture):
-    """
-    Determine the winner of the game.
-    A gesture is an integer between 0 and 2, where 0 is rock, 1 is paper and 2 is scissors.
-    Parameters
-    ----------
-    humanGesture : int
-        The gesture the human player chose.
-    computerGesture : int
-        The gesture the computer chose.
-    Returns
-    -------
-    int
-        0 if human wins, 1 if computer wins, 2 if tie.
-    """
-    if humanGesture == 0:  # rock
-        if computerGesture == 0:
-            return 2
-        if computerGesture == 1:
-            return 1
-        if computerGesture == 2:
+        Returns
+        -------
+        int
+            0 if human wins, 1 if computer wins, 2 if tie.
+
+        Raises
+        ------
+        ValueError
+            If either humanGesture or computerGesture is not an integer between 0 and 2.
+        """
+        valid_gestures = [0, 1, 2]
+        if humanGesture not in valid_gestures or computerGesture not in valid_gestures:
+            raise ValueError("Invalid gesture")
+
+        if (computerGesture + 1) % len(valid_gestures) == humanGesture:
             return 0
-    elif humanGesture == 1:  # paper
-        if computerGesture == 0:
-            return 0
-        if computerGesture == 1:
+        elif humanGesture == computerGesture:
             return 2
-        if computerGesture == 2:
+        else:
             return 1
-    elif humanGesture == 2:  # scissors
-        if computerGesture == 0:
-            return 1
-        if computerGesture == 1:
-            return 0
-        if computerGesture == 2:
-            return 2

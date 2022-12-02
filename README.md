@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 **Step 3.** Download and extract the [Pepper SDK](PepperSDK.md).
 
-**Step 4.** Upload the [`images`](./images/) folder to pepper. Use the path `/data/home/nao/pepperonit/rps/images`, e.g. `/data/home/nao/pepperonit/rps/images/RPS_rock.jpg`.
+**Step 4.** Upload the [`www/rps`](./www/rps/) folder to pepper using path `/data/home/nao/.local/share/ota/`, e.g. `/data/home/nao/.local/share/ota/rps/image_feed.html`. The easiest way to complete the upload is to use sftp, see [ssh.com](https://www.ssh.com/academy/ssh/sftp) for more information.
 
 **Step 5.** Start the application with `python ./src/app.py`.
 
@@ -59,6 +59,16 @@ This repository includes a Visual Studio Code Dev Containers / GitHub Codespaces
 See the [development container README](.devcontainer/README.md) for more information.
 
 When communicating with the host machine via network, e.g. to access local instance of [rps server](https://github.com/d7017e/rps_server), please use the following address: `host.docker.internal`. To make a http request to a local rps server from the devcontainer, use the address: `http://host.docker.internal:5000`. Change the port number if you are using a different port.
+
+### Documentation
+
+The documentation is generated using [Sphinx](https://www.sphinx-doc.org/en/master/). To generate the documentation, change directory to `docs/` and run:
+
+```bash
+make html
+```
+
+The generated documentation is then available in the `docs/build/html/` folder. To view the documentation, open the `index.html` file in a browser.
 
 ### Debug
 
