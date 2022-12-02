@@ -26,20 +26,24 @@ class TestGame(unittest.TestCase):
         self.assertEqual(invalid_game_float.get_round_limit(), 3)
         self.assertEqual(invalid_game_float_negative.get_round_limit(), 3)
 
-    def test_update_game(self):
+    def test_game_2_to_1_human(self):
+        # type: () -> None
         game = Game()
 
+        self.assertEqual(game.get_current_round(), 0)
         game.update_game("Human")
         self.assertEqual(game.get_human_score(), 1)
         self.assertEqual(game.get_computer_score(), 0)
         self.assertEqual(game.get_current_round(), 1)
         self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
 
         game.update_game("Computer")
         self.assertEqual(game.get_human_score(), 1)
         self.assertEqual(game.get_computer_score(), 1)
         self.assertEqual(game.get_current_round(), 2)
         self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
 
         game.update_game("Human")
         self.assertEqual(game.get_human_score(), 2)
@@ -47,6 +51,94 @@ class TestGame(unittest.TestCase):
         self.assertEqual(game.get_current_round(), 3)
         self.assertTrue(game.check_winner())
         self.assertEqual(game.get_winner(), "Human")
+
+    def test_game_2_to_0_human(self):
+        # type: () -> None
+        game = Game()
+
+        self.assertEqual(game.get_current_round(), 0)
+        game.update_game("Human")
+        self.assertEqual(game.get_human_score(), 1)
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertEqual(game.get_current_round(), 1)
+        self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
+
+        game.update_game("Human")
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertEqual(game.get_current_round(), 2)
+        self.assertTrue(game.check_winner())
+        self.assertEqual(game.get_winner(), "Human")
+
+    def test_game_2_to_0_computer(self):
+        # type: () -> None
+        game = Game()
+
+        self.assertEqual(game.get_current_round(), 0)
+        game.update_game("Computer")
+        self.assertEqual(game.get_human_score(), 0)
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertEqual(game.get_current_round(), 1)
+        self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
+
+        game.update_game("Computer")
+        self.assertEqual(game.get_human_score(), 0)
+        self.assertEqual(game.get_computer_score(), 2)
+        self.assertEqual(game.get_current_round(), 2)
+        self.assertTrue(game.check_winner())
+        self.assertEqual(game.get_winner(), "Computer")
+
+    def test_game_3_to_1_of_5(self):
+        # type: () -> None
+        game = Game(5)
+
+        for i in range(2):
+            game.update_game("Human")
+
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
+
+        game.update_game("Computer")
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
+
+        game.update_game("Human")
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertEqual(game.get_human_score(), 3)
+        self.assertTrue(game.check_winner())
+        self.assertEqual(game.get_winner(), "Human")
+
+    def test_game_2_to_2(self):
+        # type: () -> None
+        game = Game(4)
+        self.assertEqual(game.get_round_limit(), 4)
+
+        game.update_game("Human")
+        game.update_game("Human")
+        self.assertEqual(game.get_current_round(), 2)
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertFalse(game.check_winner(), "incorrect win condition 2-0")
+        self.assertFalse(game.get_winner())
+
+        game.update_game("Computer")
+        self.assertEqual(game.get_current_round(), 3)
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertFalse(game.check_winner(), "incorrect win condition 2-1")
+        self.assertFalse(game.get_winner())
+
+        game.update_game("Computer")
+        self.assertEqual(game.get_current_round(), 4)
+        self.assertEqual(game.get_human_score(), 2)
+        self.assertEqual(game.get_computer_score(), 2)
+        self.assertTrue(game.check_winner(), "incorrect win condition 2-2 is a draw")
+        self.assertEqual(game.get_winner(), "Draw")
 
 
 if __name__ == '__main__':

@@ -50,6 +50,8 @@ class Game:
         """
         if max(self.__computer_score, self.__human_score) > (self.__round_limit / 2):
             return True
+        elif (self.__computer_score + self.__human_score) == self.__round_limit:
+            return True
         return False
 
     def get_winner(self):
