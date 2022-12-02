@@ -1,0 +1,1 @@
+This file is required for git to keep track off and upload the _static directory.
