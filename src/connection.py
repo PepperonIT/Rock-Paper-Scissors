@@ -317,25 +317,24 @@ class Connection:
             The gesture the human player chose.
         computerGesture : int
             The gesture the computer chose.
+
         Returns
         -------
         int
             0 if human wins, 1 if computer wins, 2 if tie.
+
+        Raises
+        ------
+        ValueError
+            If either humanGesture or computerGesture is not an integer between 0 and 2.
         """
-        if humanGesture == computerGesture:
+        valid_gestures = [0, 1, 2]
+        if humanGesture not in valid_gestures or computerGesture not in valid_gestures:
+            raise ValueError("Invalid gesture")
+
+        if (computerGesture + 1) % len(valid_gestures) == humanGesture:
+            return 0
+        elif humanGesture == computerGesture:
             return 2
-        if humanGesture == 0:  # rock
-            if computerGesture == 1:
-                return 1
-            if computerGesture == 2:
-                return 0
-        elif humanGesture == 1:  # paper
-            if computerGesture == 0:
-                return 0
-            if computerGesture == 2:
-                return 1
-        elif humanGesture == 2:  # scissors
-            if computerGesture == 0:
-                return 1
-            if computerGesture == 1:
-                return 0
+        else:
+            return 1

@@ -36,15 +36,10 @@ class TestConnection(unittest.TestCase):
         self.assertEqual(scissors, 2)
 
     def test_invalid_input(self):
-        invalid_negative_int_human = Connection.get_winner(-1, self.rock)
-        invalid_negative_int_computer = Connection.get_winner(self.paper, -1)
-        invalid_int_human = Connection.get_winner(1000, self.rock)
-        invalid_int_computer = Connection.get_winner(self.paper, 1000)
-
-        self.assertEqual(invalid_negative_int_human, None)
-        self.assertEqual(invalid_negative_int_computer, None)
-        self.assertEqual(invalid_int_human, None)
-        self.assertEqual(invalid_int_computer, None)
+        self.assertRaises(ValueError, Connection.get_winner, -1, self.rock)
+        self.assertRaises(ValueError, Connection.get_winner, self.paper, -1)
+        self.assertRaises(ValueError, Connection.get_winner, 1000, self.rock)
+        self.assertRaises(ValueError, Connection.get_winner, self.paper, 1000)
 
 
 if __name__ == '__main__':
