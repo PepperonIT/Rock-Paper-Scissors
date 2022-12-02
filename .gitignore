@@ -10,3 +10,6 @@
 # Taken photos
 *.jpg
 *.png
+
+# Documentation output
+/docs/build/
