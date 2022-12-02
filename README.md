@@ -16,7 +16,7 @@ pip install -r requirements.txt
 
 **Step 3.** Download and extract the [Pepper SDK](PepperSDK.md).
 
-**Step 4.** Upload the [`images`](./images/) folder to pepper. Use the path `/data/home/nao/pepperonit/rps/images`, e.g. `/data/home/nao/pepperonit/rps/images/RPS_rock.jpg`.
+**Step 4.** Upload the [`www/rps`](./www/rps/) folder to pepper using path `/data/home/nao/.local/share/ota/`, e.g. `/data/home/nao/.local/share/ota/rps/image_feed.html`. The easiest way to complete the upload is to use sftp, see [ssh.com](https://www.ssh.com/academy/ssh/sftp) for more information.
 
 **Step 5.** Start the application with `python ./src/app.py`.
 
