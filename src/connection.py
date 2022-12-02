@@ -184,15 +184,16 @@ class Connection:
             return
 
         self.camera.subscribe(0, 1, 11, fps)
+        self.tablet_service.showWebview("http://198.18.0.1/ota_files/rps/image_feed.html")
+
         while True:
             if event.is_set():
                 break
             image = self.camera.capture_frame()
             time.sleep(1 / fps)
             Image.fromarray(image).save("/home/nao/.local/share/ota/rps/latest.jpg", "JPEG")
-            self.tablet_service.showImageNoCache("http://198.18.0.1/ota_files/rps/latest.jpg")
 
-        self.tablet_service.hideImage()
+        self.tablet_service.hideWebview()
 
     def capture_gesture(self):
         """
