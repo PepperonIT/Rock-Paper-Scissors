@@ -56,6 +56,7 @@ class Camera:
         Unsubscribe from the camera.
         """
         self.camera_service.unsubscribe(self.camera_link)
+        self.camera_link = None
 
     def capture_frame(self, channels=3):
         """
