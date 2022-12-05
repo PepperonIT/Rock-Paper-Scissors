@@ -10,6 +10,7 @@ from camera import Camera
 from ai_rest import predict_on_images
 from PIL import Image
 from memoize import Memoize
+from game import Game
 
 verbal_feedback_se = {
     # General
@@ -34,7 +35,25 @@ verbal_feedback_se = {
     ],
     "tie": [
         "Oavgjort, vi kör igen",
-        "Det blev lika, vi kör igen"
+        "Det blev lika, vi kör igen",
+    ],
+    "new_round": [
+        "Vi kör igen!",
+    ],
+    "best_of_round": [
+        "Ingen har vunnit ännu!",
+        "Jag kan fortfarande vinna!",
+    ],
+    "Human": [
+        "Grattis, du vann flest matcher!",
+        "Du fick mer poäng än mig, vill du spela igen?"
+    ],
+    "Computer": [
+        "Robotar vinner alltid till slut.",
+        "Jag tog hem segern till slut."
+    ],
+    "Draw": [
+        "Det blev oavgjort, ska vi spela igen?",
     ],
 
     # Errors
@@ -105,6 +124,8 @@ class Connection:
         self.mem = session.service("ALMemory")
         self.face = session.service("ALFaceDetection")
         self.camera = Camera(session)
+        self.fps = 15
+        self.current_game = Game()
         self.speech_service.setLanguage(language)
         self.verbal_feedback = verbal_feedback_se if language == 'Swedish' else verbal_feedback_en
 
@@ -114,6 +135,10 @@ class Connection:
         # Preload all images
         # for key in image_paths:
         # self.tablet_service.preLoadImage(image_paths[key])
+
+    def create_new_game(self, rounds=None):
+        # type: (int|None) -> None
+        self.current_game = Game(rounds)
 
     def run_game(self, changeTracking=True):
         """
@@ -126,7 +151,7 @@ class Connection:
             Pepper try to find a new target
         """
         stop_video_event = Event()
-        picture_thread = Thread(target=self.send_video, args=(stop_video_event, 15))
+        picture_thread = Thread(target=self.send_video, args=(stop_video_event,))
         picture_thread.start()
 
         if changeTracking:
@@ -142,8 +167,6 @@ class Connection:
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
         self.say_result(human_gesture, computer_gesture)
-        time.sleep(3)
-        self.tablet_service.hideImage()
 
         if changeTracking:
             self.stopTracking()
@@ -201,7 +224,7 @@ class Connection:
         elif gesture_id == 2:
             self.tablet_service.showImage(image_paths["scissor"])
 
-    def send_video(self, event, fps):
+    def send_video(self, event):
         """
         Continously takes pictures and sends them to pepper to display on the 
         tablet until event is set.
@@ -218,14 +241,13 @@ class Connection:
             print("Not running on pepper, skipping video")
             return
 
-        self.camera.subscribe(0, 1, 11, fps)
         self.tablet_service.showWebview("http://198.18.0.1/ota_files/rps/image_feed.html")
 
         while True:
             if event.is_set():
                 break
             image = self.camera.capture_frame()
-            time.sleep(1 / fps)
+            time.sleep(1 / self.fps)
             Image.fromarray(image).save("/home/nao/.local/share/ota/rps/latest.jpg", "JPEG")
 
         self.tablet_service.hideWebview()
@@ -247,7 +269,6 @@ class Connection:
         for _ in range(0, 2):
             gesture = self.camera.capture_frame()
             gesture_images.append(gesture)
-        self.camera.unsubscribe()
 
         # Process images
         prediction = predict_on_images(gesture_images)
@@ -311,6 +332,7 @@ class Connection:
         """
         Pepper announces the result of the game and plays again
         if the game was a tie or an error occurs.
+        Note that say_result also updates the current_game with who won.
 
         Parameters
         ----------
@@ -331,9 +353,11 @@ class Connection:
 
         winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
+            self.current_game.update_game("Human")
             victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
             self.speech_service.say(self.verbal_feedback["human_victory"][victory_saying_index])
         elif winner == 1:
+            self.current_game.update_game("Computer")
             victory_saying_index = random.randint(0, len(verbal_feedback_se["computer_victory"]) - 1)
             self.speech_service.say(self.verbal_feedback["computer_victory"][victory_saying_index])
         elif winner == 2:
@@ -373,3 +397,28 @@ class Connection:
             return 2
         else:
             return 1
+
+    def game_loop(self):
+        # type: () -> None
+        self.current_game = Game()
+        self.camera.subscribe(0, 1, 11, self.fps)
+
+        self.run_game()
+        game_over = self.current_game.get_winner()
+        while not game_over:
+            round_saying_index = random.randint(0, len(verbal_feedback_se["new_round"]) - 1)
+            self.speech_service.say(verbal_feedback_se["new_round"][round_saying_index])
+            self.tablet_service.hideImage()
+            self.run_game(False)
+            game_over = self.current_game.check_winner()
+            if random.randint(0, 9) < 4 and not game_over:
+                round_saying_index = random.randint(0, len(verbal_feedback_se["best_of_round"]) - 1)
+                self.speech_service.say(verbal_feedback_se["best_of_round"][round_saying_index])
+        # Say result here
+        winner = self.current_game.get_winner()
+        round_saying_index = random.randint(0, len(verbal_feedback_se[winner]) - 1)
+        self.speech_service.say(verbal_feedback_se[winner][round_saying_index])
+
+        self.tablet_service.hideImage()
+        self.camera.unsubscribe()
+        self.current_game = Game()
