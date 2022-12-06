@@ -90,6 +90,39 @@ class TestGame(unittest.TestCase):
         self.assertTrue(game.check_winner())
         self.assertEqual(game.get_winner(), "Computer")
 
+    def test_game_1_to_0_computer(self):
+        # type: () -> None
+        game = Game()
+
+        self.assertEqual(game.get_current_round(), 0)
+        game.update_game("dsasda")
+        self.assertEqual(game.get_human_score(), 0)
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertEqual(game.get_current_round(), 1)
+        self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
+
+        game.update_game("sdasdas")
+        self.assertEqual(game.get_human_score(), 0)
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertEqual(game.get_current_round(), 2)
+        self.assertFalse(game.check_winner())
+        self.assertFalse(game.get_winner())
+
+        game.update_game("dasdasva")
+        self.assertEqual(game.get_computer_score(), 0)
+        self.assertEqual(game.get_human_score(), 0)
+        self.assertEqual(game.get_current_round(), 3)
+        self.assertFalse(game.check_winner())
+        self.assertEqual(game.get_winner(), None)
+
+        game.update_game("Computer")
+        self.assertEqual(game.get_computer_score(), 1)
+        self.assertEqual(game.get_human_score(), 0)
+        self.assertEqual(game.get_current_round(), 4)
+        self.assertFalse(game.check_winner())
+        self.assertEqual(game.get_winner(), None)
+
     def test_game_3_to_1_of_5(self):
         # type: () -> None
         game = Game(5)

@@ -26,7 +26,7 @@ verbal_feedback_se = {
 
     # Result messages
     "human_victory": [
-        "Grattis, du vann!",
+        "Du vann den rundan!",
         "Nybörjartur, nästa gång vinner jag!"
     ],
     "computer_victory": [
@@ -76,7 +76,7 @@ verbal_feedback_en = {
 
     # Result messages
     "human_victory": [
-        "Congratulations, you won!",
+        "You won this round!",
         "Beginner's luck, I'll win next time!"
     ],
     "computer_victory": [
@@ -132,7 +132,7 @@ class Connection:
     Docstring 1
     """
 
-    def __init__(self, session, language):
+    def __init__(self, session, language='Swedish'):
         self.motion_service = session.service("ALMotion")
         self.tablet_service = session.service("ALTabletService")
         self.camera_service = session.service("ALVideoDevice")
@@ -141,11 +141,13 @@ class Connection:
         self.speech_service = session.service("ALTextToSpeech")
         self.mem = session.service("ALMemory")
         self.face = session.service("ALFaceDetection")
+
         self.camera = Camera(session)
         self.fps = 15
         self.current_game = Game()
         self.speech_service.setLanguage(language)
-        self.verbal_feedback = verbal_feedback_se if language == 'Swedish' else verbal_feedback_en
+        self.verbal_feedback = verbal_feedback_en if language == 'English' else verbal_feedback_se
+        self.last_winner = None
 
         # Determine if environment is running on a real robot or using an extrernal computer
         self.running_on_pepper = "aldebaran" in platform.release()
@@ -371,15 +373,18 @@ class Connection:
 
         winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
-            self.current_game.update_game("Human")
-            victory_saying_index = random.randint(0, len(verbal_feedback_se["human_victory"]) - 1)
+            self.last_winner = "Human"
+        else:
+            self.last_winner = "Computer"
+
+        if winner == 0:
+            victory_saying_index = random.randint(0, len(self.verbal_feedback["human_victory"]) - 1)
             self.speech_service.say(self.verbal_feedback["human_victory"][victory_saying_index])
         elif winner == 1:
-            self.current_game.update_game("Computer")
-            victory_saying_index = random.randint(0, len(verbal_feedback_se["computer_victory"]) - 1)
+            victory_saying_index = random.randint(0, len(self.verbal_feedback["computer_victory"]) - 1)
             self.speech_service.say(self.verbal_feedback["computer_victory"][victory_saying_index])
         elif winner == 2:
-            victory_saying_index = random.randint(0, len(verbal_feedback_se["tie"]) - 1)
+            victory_saying_index = random.randint(0, len(self.verbal_feedback["tie"]) - 1)
             self.speech_service.say(self.verbal_feedback["tie"][victory_saying_index])
             self.run_game(False)
 
@@ -420,22 +425,28 @@ class Connection:
         # type: () -> None
         self.current_game = Game()
         self.camera.subscribe(0, 1, 11, self.fps)
-
-        self.run_game()
+        firstItter = True
         game_over = self.current_game.get_winner()
+
         while not game_over:
-            round_saying_index = random.randint(0, len(verbal_feedback_se["new_round"]) - 1)
-            self.speech_service.say(verbal_feedback_se["new_round"][round_saying_index])
             self.tablet_service.hideImage()
-            self.run_game(False)
+            self.run_game(firstItter)
+            firstItter = False
+            self.current_game.update_game(self.last_winner)
+
             game_over = self.current_game.check_winner()
-            if random.randint(0, 9) < 4 and not game_over:
-                round_saying_index = random.randint(0, len(verbal_feedback_se["best_of_round"]) - 1)
-                self.speech_service.say(verbal_feedback_se["best_of_round"][round_saying_index])
+            if not game_over:
+                round_saying_index = random.randint(0, len(self.verbal_feedback["new_round"]) - 1)
+                self.speech_service.say(self.verbal_feedback["new_round"][round_saying_index])
+                if random.randint(0, 9) < 4:
+                    round_saying_index = random.randint(0, len(self.verbal_feedback["best_of_round"]) - 1)
+                    self.speech_service.say(self.verbal_feedback["best_of_round"][round_saying_index])
+                    time.sleep(1)
+
         # Say result here
         winner = self.current_game.get_winner()
-        round_saying_index = random.randint(0, len(verbal_feedback_se[winner]) - 1)
-        self.speech_service.say(verbal_feedback_se[winner][round_saying_index])
+        round_saying_index = random.randint(0, len(self.verbal_feedback[winner]) - 1)
+        self.speech_service.say(self.verbal_feedback[winner][round_saying_index])
 
         self.tablet_service.hideImage()
         self.camera.unsubscribe()
