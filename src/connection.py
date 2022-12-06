@@ -87,6 +87,24 @@ verbal_feedback_en = {
         "Tie, let's play again",
         "It was a tie, let's play again"
     ],
+    "new_round": [
+        "Lets play again!",
+    ],
+    "best_of_round": [
+        "No one has won yet!",
+        "I can still win this!",
+    ],
+    "Human": [
+        "Congratulations, you won more rounds than me.",
+        "Good game, do you want to play again?"
+    ],
+    "Computer": [
+        "Robots always win in the end.",
+        "I won in then end, good game!"
+    ],
+    "Draw": [
+        "It's a tie, do you want to play again?",
+    ],
 
     # Errors
     "error_general": "I'm a bit confused, could you be a little more cleare?",
