@@ -9,7 +9,7 @@ from threading import Event
 from camera import Camera
 from ai_rest import predict_on_images
 from PIL import Image
-from memoize import Memoize
+from memoize import DynamicRNG
 from game import Game
 
 verbal_feedback_se = {
@@ -218,8 +218,8 @@ class Connection:
         """
         Docstring 1
         """
-        memo = Memoize.get_instance()
-        gesture_id = Memoize.memoized_random(memo)
+        memo = DynamicRNG.get_instance()
+        gesture_id = DynamicRNG.dynamic_random(memo)
         # random.seed(datetime.datetime.now())
         # gesture_id = random.randint(0, 2)
         return gesture_id

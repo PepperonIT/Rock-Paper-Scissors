@@ -1,12 +1,11 @@
 import random
 
 
-class Memoize():
+class DynamicRNG():
     """
-    Uses memoization to adjust the chosen game gesture for rock-paper-scissors. 
-    __memoization is where the memoized values are stored.
-    __memoization limit is twice the limit of memoization moves, if you want to memoize 
-    the last 3 moves it should be set to 6.
+    Uses previous outcomes to adjust the chosen game gesture for rock-paper-scissors. 
+    __choices is where the memoized values are stored.
+    __choices_limit is the limit of how many choices should be kept in the dynamic choices list.
     __game_value is the set of valid game moves.
 
     Note that changing these game settings might affect the unit tests.
@@ -19,20 +18,20 @@ class Memoize():
         Returns a pointer to the active Memoization instance.
         If there is none, it creates it.
         """
-        if Memoize.__instance == None:
-            Memoize()
-        return Memoize.__instance
+        if DynamicRNG.__instance == None:
+            DynamicRNG()
+        return DynamicRNG.__instance
 
     def __init__(self):
         """
-        Initializer for the Memoization singleton.
+        Initializer for the DynamicRNG singleton.
         """
-        if Memoize.__instance != None:
+        if DynamicRNG.__instance != None:
             raise Exception("Singleton class initialized a second time.")
         else:
-            Memoize.__instance = self
-            self.__memoization = []
-            self.__memoization_limit = 4
+            DynamicRNG.__instance = self
+            self.__choices = []
+            self.__choices_limit = 4
             self.__game_values = [0, 1, 2]
 
     @staticmethod
@@ -49,7 +48,7 @@ class Memoize():
         return result_list
 
     def validate_input(self, game_input):
-        # type: (Memoize, int) -> int | None
+        # type: (DynamicRNG, int) -> int | None
         """
         Validates that the input is a predefined input, otherwise it returns None.
         """
@@ -59,76 +58,76 @@ class Memoize():
                 return i
         return None
 
-    def cut_memoization(self, bias):
-        if bias in self.__memoization:
-            self.__memoization.remove(bias)
-        self.__memoization = self.__memoization[-self.__memoization_limit:]
+    def cut_choices(self, bias):
+        if bias in self.__choices:
+            self.__choices.remove(bias)
+        self.__choices = self.__choices[-self.__choices_limit:]
 
-    def update_memoization(self, outcome):
-        # type: (Memoize, int) -> None
+    def update_choices(self, outcome):
+        # type: (DynamicRNG, int) -> None
         """
-        Takes the new game outcome as an argument and updates the memoization based on the value, also removes the 
-        chosen value from the memoization before adding new values. If the input is invalid, i.e. does not exist 
+        Takes the new game outcome as an argument and updates the choices based on the value, also removes the 
+        chosen value from the choices before adding new values. If the input is invalid, i.e. does not exist 
         in the predefined game inputs, the validate_input returns None and the function terminates.
         """
-        validated_outcome = Memoize.validate_input(self, outcome)
+        validated_outcome = DynamicRNG.validate_input(self, outcome)
         if validated_outcome == None:
             return
 
-        if len(self.__memoization) > 0:
-            if outcome in self.__memoization:
-                self.__memoization.remove(outcome)
+        if len(self.__choices) > 0:
+            if outcome in self.__choices:
+                self.__choices.remove(outcome)
 
-        memoize = self.copy_exclude(self.__game_values, validated_outcome)
+        new_choices = self.copy_exclude(self.__game_values, validated_outcome)
         # If you want more even randomness activate the shuffle method.
         # This will cause most of the unit tests to fail, since some of them assume that
-        # the memoization entry method is consistent.
-        # random.shuffle(memoize)
-        self.__memoization += memoize
+        # the choices entry method is consistent.
+        # random.shuffle(new_choices)
+        self.__choices += new_choices
 
-        if len(self.__memoization) > self.__memoization_limit:
-            self.cut_memoization(outcome)
+        if len(self.__choices) > self.__choices_limit:
+            self.cut_choices(outcome)
 
-    def get_memoization(self):
-        # type: (Memoize) -> list[int]
+    def get_choices(self):
+        # type: (DynamicRNG) -> list[int]
         """
-        Simple get method for __memoization.
+        Simple get method for __choices.
         """
-        return self.__memoization
+        return self.__choices
 
-    def get_memoization_limit(self):
-        # type: (Memoize) -> int
+    def get_choices_limit(self):
+        # type: (DynamicRNG) -> int
         """
-        Simple get method for __memoization_limit.
+        Simple get method for __choices_limit.
         """
-        return self.__memoization_limit
+        return self.__choices_limit
 
     def get_game_inputs(self):
-        # type: (Memoize) -> list[int]
+        # type: (DynamicRNG) -> list[int]
         """
         Simple get method for __game_values.
         """
         return self.__game_values
 
-    def dump_memoization(self):
-        # type: (Memoize) -> None
+    def dump_choices(self):
+        # type: (DynamicRNG) -> None
         """
-        Empties the existing memoization.
+        Empties the existing choices.
         """
-        self.__memoization = []
+        self.__choices = []
 
-    def memoized_random(self):
-        # type: (Memoize) -> int
+    def dynamic_random(self):
+        # type: (DynamicRNG) -> int
         """
-        If there is no memoized values simply returns a random game value then updates the
-        memoization. But if something has been memoized a random value from the memoization is
-        selected. The memoization is then updated with the new outcome.
+        If there is no stored choices values simply returns a random game value then updates the
+        DynamicRNG. But if something has been stored a random value from the DynamicRNG's choices is
+        selected. The choices is then updated with the new outcome.
         """
-        if self.__memoization == []:
+        if self.__choices == []:
             selected = random.choice(self.__game_values)
-            self.update_memoization(selected)
+            self.update_choices(selected)
             return selected
         else:
-            selected = random.choice(self.__memoization)
-            self.update_memoization(selected)
+            selected = random.choice(self.__choices)
+            self.update_choices(selected)
             return selected

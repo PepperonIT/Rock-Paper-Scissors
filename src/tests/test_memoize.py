@@ -1,5 +1,5 @@
 import unittest
-from src.memoize import Memoize
+from src.memoize import DynamicRNG
 
 
 class TestMemoize(unittest.TestCase):
@@ -8,14 +8,14 @@ class TestMemoize(unittest.TestCase):
         """
         Test that copy_exclude does infact exclude the given values.
         """
-        exclude_int = Memoize.copy_exclude([0, 1, 2, 3, 4], 2)
+        exclude_int = DynamicRNG.copy_exclude([0, 1, 2, 3, 4], 2)
         self.assertEqual(exclude_int, [0, 1, 3, 4])
 
     def test_copy_exclude_multiple_ints(self):
         """
         Test that copy_exclude excludes all instances of the given value.
         """
-        exclude_multiple_ints = Memoize.copy_exclude([0, 1, 2, 0, 1, 2, 3, 0, 1, 2], 1)
+        exclude_multiple_ints = DynamicRNG.copy_exclude([0, 1, 2, 0, 1, 2, 3, 0, 1, 2], 1)
         self.assertEqual(exclude_multiple_ints, [0, 2, 0, 2, 3, 0, 2])
 
     def test_copy_exclude_is_copy(self):
@@ -24,18 +24,18 @@ class TestMemoize(unittest.TestCase):
         the original data.
         """
         test_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-        exclusion_list = Memoize.copy_exclude(test_list, 3)
+        exclusion_list = DynamicRNG.copy_exclude(test_list, 3)
         self.assertNotEqual(test_list, exclusion_list)
 
     def test_validate_input_valid_inputs(self):
         """
         Test that validate_input functions propperly for values in its span.
         """
-        memo = Memoize.get_instance()
+        memo = DynamicRNG.get_instance()
 
-        valid_zero = Memoize.validate_input(memo, 0)
-        valid_one = Memoize.validate_input(memo, 1)
-        valid_two = Memoize.validate_input(memo, 2)
+        valid_zero = DynamicRNG.validate_input(memo, 0)
+        valid_one = DynamicRNG.validate_input(memo, 1)
+        valid_two = DynamicRNG.validate_input(memo, 2)
 
         self.assertEqual(valid_zero, 0, "Validation of '0' failed.")
         self.assertEqual(valid_one, 1, "Validation of '1' failed.")
@@ -45,12 +45,12 @@ class TestMemoize(unittest.TestCase):
         """
         Tests that validate_input does infact invalidate some arbitrary invalid input.
         """
-        memo = Memoize.get_instance()
+        memo = DynamicRNG.get_instance()
 
-        invalid_positive_int = Memoize.validate_input(memo, 1000)
-        invalid_negative_int = Memoize.validate_input(memo, -1)
-        invalid_string = Memoize.validate_input(memo, "1")
-        invalid_list = Memoize.validate_input(memo, [1])
+        invalid_positive_int = DynamicRNG.validate_input(memo, 1000)
+        invalid_negative_int = DynamicRNG.validate_input(memo, -1)
+        invalid_string = DynamicRNG.validate_input(memo, "1")
+        invalid_list = DynamicRNG.validate_input(memo, [1])
 
         self.assertEqual(invalid_positive_int, None)
         self.assertEqual(invalid_negative_int, None)
@@ -58,43 +58,43 @@ class TestMemoize(unittest.TestCase):
         self.assertEqual(invalid_list, None)
 
     def test_cut_memoization(self):
-        memo = Memoize.get_instance()
-        Memoize.dump_memoization(memo)
-        moves = Memoize.get_game_inputs(memo)
+        memo = DynamicRNG.get_instance()
+        DynamicRNG.dump_choices(memo)
+        moves = DynamicRNG.get_game_inputs(memo)
 
-        for i in range(Memoize.get_memoization_limit(memo)):
-            Memoize.update_memoization(memo, moves[0])
+        for i in range(DynamicRNG.get_choices_limit(memo)):
+            DynamicRNG.update_choices(memo, moves[0])
 
-        Memoize.update_memoization(memo, moves[1])
+        DynamicRNG.update_choices(memo, moves[1])
         expected_memoization = [moves[2], moves[2], moves[0], moves[2]]
 
-        self.assertEqual(Memoize.get_memoization(memo), expected_memoization)
+        self.assertEqual(DynamicRNG.get_choices(memo), expected_memoization)
 
     def test_update_memoization_one_outcome(self):
         """
         Test that the outcome of one game result gives the correct memoization.
         """
-        memo = Memoize.get_instance()
-        Memoize.dump_memoization(memo)
-        moves = Memoize.get_game_inputs(memo)
+        memo = DynamicRNG.get_instance()
+        DynamicRNG.dump_choices(memo)
+        moves = DynamicRNG.get_game_inputs(memo)
 
-        Memoize.update_memoization(memo, moves[2])
+        DynamicRNG.update_choices(memo, moves[2])
 
-        result = Memoize.get_memoization(memo)
+        result = DynamicRNG.get_choices(memo)
         self.assertEqual(result, [moves[0], moves[1]])
 
     def test_update_memoization_limit(self):
         """
         Test that the memoization limit is adhered to.
         """
-        memo = Memoize.get_instance()
-        Memoize.dump_memoization(memo)
-        moves = Memoize.get_game_inputs(memo)
+        memo = DynamicRNG.get_instance()
+        DynamicRNG.dump_choices(memo)
+        moves = DynamicRNG.get_game_inputs(memo)
 
-        limit = Memoize.get_memoization_limit(memo)
+        limit = DynamicRNG.get_choices_limit(memo)
         for i in range(limit + 1):
-            Memoize.update_memoization(memo, moves[0])
-        result = Memoize.get_memoization(memo)
+            DynamicRNG.update_choices(memo, moves[0])
+        result = DynamicRNG.get_choices(memo)
         self.assertEqual(len(result), limit)
 
     def test_update_memoization_limit_slicing(self):
@@ -102,19 +102,19 @@ class TestMemoize(unittest.TestCase):
         Test that the memoization limiter functions as it should when
         slicing off old memoized values.
         """
-        memo = Memoize.get_instance()
-        memo_limit = Memoize.get_memoization_limit(memo)
-        Memoize.dump_memoization(memo)
-        moves = Memoize.get_game_inputs(memo)
+        memo = DynamicRNG.get_instance()
+        memo_limit = DynamicRNG.get_choices_limit(memo)
+        DynamicRNG.dump_choices(memo)
+        moves = DynamicRNG.get_game_inputs(memo)
 
         for i in range(memo_limit // 2):
-            Memoize.update_memoization(memo, moves[0])
+            DynamicRNG.update_choices(memo, moves[0])
         for i in range(memo_limit // 2):
-            Memoize.update_memoization(memo, moves[1])
+            DynamicRNG.update_choices(memo, moves[1])
 
-        memoized = Memoize.get_memoization(memo)
-        game_inputs = Memoize.get_game_inputs(memo)
-        repeated_memo = Memoize.copy_exclude(game_inputs, moves[1])
+        memoized = DynamicRNG.get_choices(memo)
+        game_inputs = DynamicRNG.get_game_inputs(memo)
+        repeated_memo = DynamicRNG.copy_exclude(game_inputs, moves[1])
 
         expected_memo = []
         for i in range(memo_limit // 2):
@@ -127,19 +127,19 @@ class TestMemoize(unittest.TestCase):
         Test that the update_memoization function uses the validate_input function
         correctly.
         """
-        memo = Memoize.get_instance()
-        Memoize.dump_memoization(memo)
+        memo = DynamicRNG.get_instance()
+        DynamicRNG.dump_choices(memo)
 
-        Memoize.update_memoization(memo, -1)
-        result = Memoize.get_memoization(memo)
+        DynamicRNG.update_choices(memo, -1)
+        result = DynamicRNG.get_choices(memo)
         self.assertEqual(len(result), 0)
 
     def test_proportions(self):
         """
         Run the game for 1 000 turns, fail if one outcome occurs 40% of the time or more.
         """
-        memo = Memoize.get_instance()
-        moves = Memoize.get_game_inputs(memo)
+        memo = DynamicRNG.get_instance()
+        moves = DynamicRNG.get_game_inputs(memo)
 
         runs = 1000
         cumulative = {}
@@ -147,7 +147,7 @@ class TestMemoize(unittest.TestCase):
             cumulative[game_move] = 0
 
         for i in range(runs):
-            cumulative[Memoize.memoized_random(memo)] += 1
+            cumulative[DynamicRNG.dynamic_random(memo)] += 1
 
         for i in cumulative:
             res = float(cumulative[i]) / float(runs)
