@@ -20,11 +20,13 @@
         </style>
     </head>
     <body>
+        <!-- <span id="text" style="color: white;">Waiting for image update...</span> -->
         <img src="" alt="Loading image..." id="imagefeed" />
         <script>
             var imageBaseUrl = "latest.jpg";
 
             function UpdateImage(imageElement) {
+                // document.querySelector("#text").innerHTML = "Updating image at " + new Date().toLocaleTimeString();
                 imageElement.src = imageBaseUrl + "?" + new Date().getTime();
             }
 
