@@ -156,6 +156,8 @@ class Connection:
         # for key in image_paths:
         # self.tablet_service.preLoadImage(image_paths[key])
 
+        self.tablet_service.resetTablet()
+
     def create_new_game(self, rounds=None):
         # type: (int|None) -> None
         self.current_game = Game(rounds)
@@ -181,7 +183,6 @@ class Connection:
         self.shake_arm()
         stop_video_event.set()
         picture_thread.join()
-        self.do_gesture(computer_gesture)
 
         human_gesture = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
@@ -190,6 +191,8 @@ class Connection:
 
         if changeTracking:
             self.stopTracking()
+
+        return computer_gesture, human_gesture
 
     def shake_arm(self):
         """
@@ -223,6 +226,34 @@ class Connection:
         # random.seed(datetime.datetime.now())
         # gesture_id = random.randint(0, 2)
         return gesture_id
+
+    def show_result(self, human_score, robot_score, robot_gesture, human_image_url):
+        """
+        Show result aftera completed round of rock-paper-scissors.
+
+        Parameters
+        ------------
+        human_score: int
+            The number of rounds the human player has won
+        robot_score: int
+            The number of rounds the robot player has won
+        robot_gesture: int
+            The gesture the robot player chose
+        human_image_url: string
+            The url to the image of the human player
+
+        """
+        # 0 == rock, 1 == paper, 2 == scissors
+        # only supports english version for now
+        robot_gesture_str = "rock" if robot_gesture == 0 else "paper" if robot_gesture == 1 else "scissor"
+        result_url = "http://198.18.0.1/ota_files/rps/game_score.html?human_score={}&robot_score={}&robot_gesture={}&human_image="
+        result_url = result_url.format(human_score, robot_score, robot_gesture_str)  # , human_image_url)
+        print(result_url)
+        if not self.tablet_service.showWebview(result_url):
+            print("Could not show webview")
+            return
+        else:
+            print("Displaying result webpage")
 
     def do_gesture(self, gesture_id):
         """
@@ -260,6 +291,11 @@ class Connection:
         if not self.running_on_pepper:
             print("Not running on pepper, skipping video")
             return
+        else:
+            print("Starting videofeed of human opponent")
+
+        if self.camera.camera_link is None:
+            self.camera.subscribe(0, 1, 11, 10)
 
         self.tablet_service.showWebview("http://198.18.0.1/ota_files/rps/image_feed.html")
 
@@ -429,10 +465,13 @@ class Connection:
         game_over = self.current_game.get_winner()
 
         while not game_over:
-            self.tablet_service.hideImage()
-            self.run_game(firstItter)
+            computer_gesture, human_gesture = self.run_game(firstItter)
             firstItter = False
             self.current_game.update_game(self.last_winner)
+            self.show_result(self.current_game.get_human_score(),
+                             self.current_game.get_computer_score(),
+                             computer_gesture,
+                             "http://pepper.lillbonum.se/predict/hand/image/f1927a07666c4b918c28873d8023fd53_processed.jpg")
 
             game_over = self.current_game.check_winner()
             if not game_over:
@@ -448,6 +487,7 @@ class Connection:
         round_saying_index = random.randint(0, len(self.verbal_feedback[winner]) - 1)
         self.speech_service.say(self.verbal_feedback[winner][round_saying_index])
 
-        self.tablet_service.hideImage()
+        time.sleep(2)
+        self.tablet_service.hideWebview()
         self.camera.unsubscribe()
         self.current_game = Game()
