@@ -10,6 +10,7 @@
 # Taken photos
 *.jpg
 *.png
+!www/rps/static/*.jpg
 
 # Documentation output
 /docs/build/

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Score - Human vs Pepper</title>
+        <style>
+            body {
+                font-size: 3rem;
+                border: none;
+                margin: 0;
+            }
+
+            .score-container {
+                height: 100vh;
+            }
+
+            .score {
+                float: left;
+                height: 50vh;
+                width: 50%;
+                text-align: center;
+            }
+            .gesture_image {
+                display: block;
+                width: 80%;
+                max-width: 100%;
+                height: auto;
+                margin: 65px auto;
+            }
+            .hidden_gesture {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="score-container">
+            <div class="score">
+                <h1 class="score_title">Human</h1>
+                <span class="score_value" id="human_score">0</span>
+                <img
+                    src="https://pepper.lillbonum.se/predict/hand/image/f1927a07666c4b918c28873d8023fd53_processed.jpg"
+                    alt="Could not display image"
+                    class="gesture_image"
+                />
+            </div>
+            <div class="score">
+                <h1 class="score_title">Pepper</h1>
+                <span class="score_value" id="robot_score">0</span>
+                <img src="" id="robot_gesture"alt="Loading.." class="gesture_image"
+                />
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                try {
+                    main();
+                } catch (error) {
+                    alert(error);
+                }
+            });
+
+            /**
+             * Get url parameters from an url.
+             * @param {string} url - The url to get parameters from.
+             */
+            function parseUrlParameters(url) {
+                var parameters = url.split("?")[1].split("&");
+                var params = {};
+                for (var i = 0; i < parameters.length; i++) {
+                    var value = parameters[i].split("=");
+                    params[value[0]] = value[1];
+                }
+                return params;
+            }
+
+            function main() {
+                var url = document.location.href;
+                var urlParams = parseUrlParameters(url);
+                var human_score = urlParams["human_score"];
+                var robot_score = urlParams["robot_score"];
+                var robot_gesture = urlParams["robot_gesture"];
+
+                var robot_gesture_image = "http://198.18.0.1/ota_files/rps/static/RPS_" + robot_gesture + ".jpg";
+
+                document.getElementById("human_score").innerHTML = human_score;
+                document.getElementById("robot_score").innerHTML = robot_score;
+                document.getElementById("robot_gesture").src = robot_gesture_image;
+            }
+        </script>
+    </body>
+</html>
