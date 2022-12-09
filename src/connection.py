@@ -162,15 +162,9 @@ class Connection:
         # type: (int|None) -> None
         self.current_game = Game(rounds)
 
-    def run_game(self, changeTracking=True):
+    def run_game(self):
         """
-        Main driver function for allowing Pepper to play rock-paper-scissors.
-
-        Parameters
-        -----------
-        changeTracking: boolean
-            Is Pepper already tracking or should 
-            Pepper try to find a new target
+        Make Pepper play one round of rock-paper-scissors.
 
         Returns
         -----------
@@ -183,21 +177,25 @@ class Connection:
         picture_thread = Thread(target=self.send_video, args=(stop_video_event,))
         picture_thread.start()
 
-        if changeTracking:
-            self.startTracking()
-
         computer_gesture = self.select_gesture()
         self.shake_arm()
-        stop_video_event.set()
-        picture_thread.join()
 
         human_gesture, human_gesture_image = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
-        self.say_result(human_gesture, computer_gesture)
 
-        if changeTracking:
-            self.stopTracking()
+        # Stop video stream after gesture is captured
+        stop_video_event.set()
+        picture_thread.join()
+
+        if human_gesture == -1:
+            self.speech_service.say(self.verbal_feedback["error_no_gesture"])
+            return self.run_game()
+        elif human_gesture == -2:
+            self.speech_service.say(self.verbal_feedback["error_hand_not_found"])
+            return self.run_game()
+
+        self.say_result(human_gesture, computer_gesture)
 
         return computer_gesture, human_gesture_image
 
@@ -410,12 +408,8 @@ class Connection:
         -------
         None.
         """
-        if humanGesture == -1:
-            self.speech_service.say(self.verbal_feedback["error_no_gesture"])
-            return self.run_game(False)
-        elif humanGesture == -2:
-            self.speech_service.say(self.verbal_feedback["error_hand_not_found"])
-            return self.run_game(False)
+        if humanGesture < 0:
+            raise Exception("Invalid human gesture: ", humanGesture)
 
         winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
@@ -432,7 +426,7 @@ class Connection:
         elif winner == 2:
             victory_saying_index = random.randint(0, len(self.verbal_feedback["tie"]) - 1)
             self.speech_service.say(self.verbal_feedback["tie"][victory_saying_index])
-            self.run_game(False)
+            self.run_game()
 
     @staticmethod
     def get_winner(humanGesture, computerGesture):
@@ -468,15 +462,17 @@ class Connection:
             return 1
 
     def game_loop(self):
-        # type: () -> None
         self.current_game = Game()
         self.camera.subscribe(0, 1, 11, self.fps)
-        firstItter = True
-        game_over = self.current_game.get_winner()
+
+        # Start tracking human
+        self.startTracking()
+
+        # Will alway be false before any game is played
+        game_over = False
 
         while not game_over:
-            computer_gesture, human_gesture_image = self.run_game(firstItter)
-            firstItter = False
+            computer_gesture, human_gesture_image = self.run_game()
             self.current_game.update_game(self.last_winner)
             self.show_result(self.current_game.get_human_score(),
                              self.current_game.get_computer_score(),
@@ -484,18 +480,23 @@ class Connection:
                              human_gesture_image)
 
             game_over = self.current_game.check_winner()
-            if not game_over:
-                round_saying_index = random.randint(0, len(self.verbal_feedback["new_round"]) - 1)
-                self.speech_service.say(self.verbal_feedback["new_round"][round_saying_index])
-                if random.randint(0, 9) < 4:
-                    round_saying_index = random.randint(0, len(self.verbal_feedback["best_of_round"]) - 1)
-                    self.speech_service.say(self.verbal_feedback["best_of_round"][round_saying_index])
-                    time.sleep(1)
+            if game_over:
+                break
+
+            round_saying_index = random.randint(0, len(self.verbal_feedback["new_round"]) - 1)
+            self.speech_service.say(self.verbal_feedback["new_round"][round_saying_index])
+            if random.randint(0, 9) < 4:
+                round_saying_index = random.randint(0, len(self.verbal_feedback["best_of_round"]) - 1)
+                self.speech_service.say(self.verbal_feedback["best_of_round"][round_saying_index])
+                time.sleep(2)
 
         # Say result here
         winner = self.current_game.get_winner()
         round_saying_index = random.randint(0, len(self.verbal_feedback[winner]) - 1)
         self.speech_service.say(self.verbal_feedback[winner][round_saying_index])
+
+        # Stop tracking human
+        self.stopTracking()
 
         time.sleep(2)
         self.tablet_service.hideWebview()
