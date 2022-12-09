@@ -39,17 +39,12 @@
             <div class="score">
                 <h1 class="score_title">Human</h1>
                 <span class="score_value" id="human_score">0</span>
-                <img
-                    src="https://pepper.lillbonum.se/predict/hand/image/f1927a07666c4b918c28873d8023fd53_processed.jpg"
-                    alt="Could not display image"
-                    class="gesture_image"
-                />
+                <img src="" id="human_gesture" alt="Loading.." class="gesture_image" />
             </div>
             <div class="score">
                 <h1 class="score_title">Pepper</h1>
                 <span class="score_value" id="robot_score">0</span>
-                <img src="" id="robot_gesture"alt="Loading.." class="gesture_image"
-                />
+                <img src="" id="robot_gesture" alt="Loading.." class="gesture_image" />
             </div>
         </div>
         <script>
@@ -81,12 +76,14 @@
                 var human_score = urlParams["human_score"];
                 var robot_score = urlParams["robot_score"];
                 var robot_gesture = urlParams["robot_gesture"];
+                var human_gesture = urlParams["human_gesture"];
 
                 var robot_gesture_image = "http://198.18.0.1/ota_files/rps/static/RPS_" + robot_gesture + ".jpg";
 
                 document.getElementById("human_score").innerHTML = human_score;
                 document.getElementById("robot_score").innerHTML = robot_score;
                 document.getElementById("robot_gesture").src = robot_gesture_image;
+                document.getElementById("human_gesture").src = human_gesture;
             }
         </script>
     </body>
