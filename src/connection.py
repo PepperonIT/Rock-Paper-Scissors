@@ -171,6 +171,13 @@ class Connection:
         changeTracking: boolean
             Is Pepper already tracking or should 
             Pepper try to find a new target
+
+        Returns
+        -----------
+        computer_gesture: int
+            The gesture that Pepper chose
+        human_gesture_image: str
+            The image url of the human gesture
         """
         stop_video_event = Event()
         picture_thread = Thread(target=self.send_video, args=(stop_video_event,))
@@ -184,7 +191,7 @@ class Connection:
         stop_video_event.set()
         picture_thread.join()
 
-        human_gesture = self.capture_gesture()
+        human_gesture, human_gesture_image = self.capture_gesture()
         print("humangesture: {}".format(human_gesture))
         print("robotgesture: {}".format(computer_gesture))
         self.say_result(human_gesture, computer_gesture)
@@ -192,7 +199,7 @@ class Connection:
         if changeTracking:
             self.stopTracking()
 
-        return computer_gesture, human_gesture
+        return computer_gesture, human_gesture_image
 
     def shake_arm(self):
         """
@@ -246,8 +253,8 @@ class Connection:
         # 0 == rock, 1 == paper, 2 == scissors
         # only supports english version for now
         robot_gesture_str = "rock" if robot_gesture == 0 else "paper" if robot_gesture == 1 else "scissor"
-        result_url = "http://198.18.0.1/ota_files/rps/game_score.html?human_score={}&robot_score={}&robot_gesture={}&human_image="
-        result_url = result_url.format(human_score, robot_score, robot_gesture_str)  # , human_image_url)
+        result_url = "http://198.18.0.1/ota_files/rps/game_score.html?human_score={}&robot_score={}&robot_gesture={}&human_gesture={}"
+        result_url = result_url.format(human_score, robot_score, robot_gesture_str, human_image_url)
         print(result_url)
         if not self.tablet_service.showWebview(result_url):
             print("Could not show webview")
@@ -313,9 +320,12 @@ class Connection:
         Capture a gesture from the player.
         Returns
         -------
-        int:
-            Returns the gesture id. If no gesture is found, returns -1. If no 
-            hand was found, returns -2. If an error occured, returns -3.
+        tuple(gesture:int, image_url:string ):
+            Returns the gesture id and the url to the image of captured gesture. 
+
+            If no gesture is found, returns -1. If no hand was found, returns -2. 
+            If an error occured, returns -3. In all three cases where no hand was 
+            found, the ``image_url`` will be an empty string.
         """
         if self.camera.camera_link is None:
             self.camera.subscribe(0, 1, 11, 30)
@@ -327,9 +337,9 @@ class Connection:
             gesture_images.append(gesture)
 
         # Process images
-        prediction = predict_on_images(gesture_images)
+        prediction, image_path = predict_on_images(gesture_images)
 
-        return prediction
+        return prediction, image_path
 
     def startTracking(self):
         """
@@ -402,10 +412,10 @@ class Connection:
         """
         if humanGesture == -1:
             self.speech_service.say(self.verbal_feedback["error_no_gesture"])
-            self.run_game(False)
+            return self.run_game(False)
         elif humanGesture == -2:
             self.speech_service.say(self.verbal_feedback["error_hand_not_found"])
-            self.run_game(False)
+            return self.run_game(False)
 
         winner = Connection.get_winner(humanGesture, computerGesture)
         if winner == 0:
@@ -448,7 +458,7 @@ class Connection:
         """
         valid_gestures = [0, 1, 2]
         if humanGesture not in valid_gestures or computerGesture not in valid_gestures:
-            raise ValueError("Invalid gesture")
+            raise ValueError("Invalid gesture: human={}, computer={}".format(humanGesture, computerGesture))
 
         if (computerGesture + 1) % len(valid_gestures) == humanGesture:
             return 0
@@ -465,13 +475,13 @@ class Connection:
         game_over = self.current_game.get_winner()
 
         while not game_over:
-            computer_gesture, human_gesture = self.run_game(firstItter)
+            computer_gesture, human_gesture_image = self.run_game(firstItter)
             firstItter = False
             self.current_game.update_game(self.last_winner)
             self.show_result(self.current_game.get_human_score(),
                              self.current_game.get_computer_score(),
                              computer_gesture,
-                             "http://pepper.lillbonum.se/predict/hand/image/f1927a07666c4b918c28873d8023fd53_processed.jpg")
+                             human_gesture_image)
 
             game_over = self.current_game.check_winner()
             if not game_over:
