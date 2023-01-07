@@ -4,7 +4,7 @@ import random
 class DynamicRNG():
     """
     Uses previous outcomes to adjust the chosen game gesture for rock-paper-scissors. 
-    __choices is where the memoized values are stored.
+    __choices is where the game choice values are stored.
     __choices_limit is the limit of how many choices should be kept in the dynamic choices list.
     __game_value is the set of valid game moves.
 
@@ -15,7 +15,7 @@ class DynamicRNG():
     @staticmethod
     def get_instance():
         """
-        Returns a pointer to the active Memoization instance.
+        Returns a pointer to the active DynamicRNG instance.
         If there is none, it creates it.
         """
         if DynamicRNG.__instance == None:
