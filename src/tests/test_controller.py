@@ -3,7 +3,7 @@ import unittest
 from src.controller import Controller
 
 
-class TestConnection(unittest.TestCase):
+class TestController(unittest.TestCase):
     rock = 0
     paper = 1
     scissors = 2
