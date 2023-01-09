@@ -127,7 +127,7 @@ image_paths = {
 }
 
 
-class Connection:
+class Controller:
     """
     Docstring 1
     """
@@ -411,7 +411,7 @@ class Connection:
         if humanGesture < 0:
             raise Exception("Invalid human gesture: ", humanGesture)
 
-        winner = Connection.get_winner(humanGesture, computerGesture)
+        winner = Controller.get_winner(humanGesture, computerGesture)
         if winner == 0:
             self.last_winner = "Human"
         else:
