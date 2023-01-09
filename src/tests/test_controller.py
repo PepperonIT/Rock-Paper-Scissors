@@ -1,6 +1,6 @@
 import unittest
 
-from controller import Controller
+from src.controller import Controller
 
 
 class TestConnection(unittest.TestCase):
