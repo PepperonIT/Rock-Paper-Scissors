@@ -6,6 +6,6 @@ setup(name='PRPS',
       url='https://github.com/D7017E/Rock-Paper-Scissors',
       author='bersim',
       author_email='bersim-8@student.ltu.se',
-      license='Apache',
+      license='MIT',
       packages=['PRPS'],
       zip_safe=False)
