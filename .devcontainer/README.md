@@ -1,19 +1,44 @@
 # Development Container
 
-[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Container&message=Open&color=blue&logo=visualstudiocode)](https://rickos99.github.io/js-UrlRedirect/?redirect=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/D7017E/Rock-Paper-Scissors)
+This repository includes configuration for a local development container based on [Visual Studio Code Remote - Containers](https://aka.ms/vscode-remote/containers). This allows you to open the repository in a container running on your local machine, and take advantage of the tools and extensions installed in the container.
 
-This repository includes configuration for a local development container or using [GitHub Codespaces](https://github.com/features/codespaces).
-
-## Quick start - local
-
-If you already have VS Code and Docker installed, you can click the badge above or [here](https://rickos99.github.io/js-UrlRedirect/?redirect=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/D7017E/Rock-Paper-Scissors) to get started. Clicking these links will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
+## Usage
 
 1. Install Docker Desktop or Docker for Linux on your local machine. (See [docs](https://aka.ms/vscode-remote/containers/getting-started) for additional details.)
 
 2. Install [Visual Studio Code](https://code.visualstudio.com/) and the [Dev Containers](https://aka.ms/vscode-remote/download/containers) extension.
 
-3. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Remote Containers: Clone Repository in Container Volume...**.
+3. Clone this repository to your local machine and open it in Visual Studio Code.
 
-4. Type `https://github.com/D7017E/Rock-Paper-Scissors` (or a branch or PR URL) in the input box and press <kbd>Enter</kbd>.
+4. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Dev Containers: Open Folder in Container...**.  
+*NOTE: This step may take a while the first time you run it.*
 
-:warning: **Note:** When the dev contaner is removed, all changes not commited will be permanently deleted too. To avoid this, before step 3, clone the repository onto local filesystem and open in it in VS Code. Then, in step 3 select **Remote Containers: Open Folder in Container** and all changes made in the devcontainer are made on the local filesystem and not the devcontainer volume.
+### Improved disk I/O
+
+For better disk I/O on macOS and Windows, use the **Dev Containers: Clone Repository in Container Volume...** command to create a container with a Docker volume attached. IMPORTANT: This will not preserve any local changes not committed and pushed to the remote repository when the container is deleted.
+
+## Common issues
+
+### Cannot start the devlopement container
+
+Make sure that Docker Desktop is running, and that you have the latest version of the [Dev Containers](https://aka.ms/vscode-remote/download/containers) extension installed.
+
+### Unable to build the container image
+
+#### Alternative 1: Rebuild the container image
+
+Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Dev Containers: Rebuild Without Cache and Reopen in Container**.
+
+This will rebuild the container image without using the cache and then reopen the folder in the container.
+
+#### Alternative 2: Manually rebuild the container image
+
+1. Open a terminal in the cloned repository folder.
+
+2. Run the following command to build the container image:
+
+```bash
+cd .devcontainer && docker build .
+```
+
+3. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Dev Containers: Open Folder in Container...**.
