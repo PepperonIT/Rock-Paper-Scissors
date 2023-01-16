@@ -42,3 +42,7 @@ cd .devcontainer && docker build .
 ```
 
 3. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Dev Containers: Open Folder in Container...**.
+
+### Unable to use a certain Python module or Python tool
+
+If a new Python module or tool is added to the any of the requirement files (`requirements.txt` and `requirements-dev.txt`) or a expected tool is missing, you need to rebuild the development container. See [rebuild the container image](./.devcontainer/README.md#alternative-1-rebuild-the-container-image) for more information on how to rebuild the dev container.

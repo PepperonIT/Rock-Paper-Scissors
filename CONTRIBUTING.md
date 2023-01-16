@@ -28,7 +28,7 @@ Follow the steps in the [development container](./.devcontainer/README.md) to se
 
 In this project, the Pepper robot is configured as read-only and you are unable to install new Python modules via PyPI (PIP). Therefore you should not modify the `requirements.txt` file.
 
-However, if you need to install a new development dependency, you can add it to the `requirements-dev.txt` file. This file is used to install the development dependencies in the development container and will not be available on the robot.
+However, if you need to install a new development dependency, you can add it to the `requirements-dev.txt` file. This file is used to install the development dependencies in the development container and will not be available on the robot. When a new dependency is added to the `requirements-dev.txt` file, you need to rebuild the development container. See the [development container](./.devcontainer/README.md#alternative-1-rebuild-the-container-image) for more information on how to rebuild the dev container.
 
 ### Documentation
 
