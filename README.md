@@ -1,80 +1,50 @@
 # Rock-Paper-Scissors
 
-This is a repo for the rock-paper-scissor module.
+This is a repo for the rock-paper-scissor module to make the robot [Pepper](https://www.aldebaran.com/en/pepper) play a game of rock paper scissors with a human opponent. The module is written in Python 2.7 and uses the [NAOqi python SDK](http://doc.aldebaran.com/2-5/dev/python/) to communicate with the robot.
+
+## Tools / Installation
+
+The following tools are required to install and run the application:
+
+- SSH client ([PuTTY](https://www.putty.org/), [OpenSSH](https://www.openssh.com/), etc.)
+- SFTP client ([FileZilla](https://filezilla-project.org/), [OpenSSH](https://www.openssh.com/), etc.)
+
+These tools are used to connect to the robot and transfer the application files to the robot. Instructions are provided below on how to install the application on the robot. This section will not cover how to run the application on your local machine.
+
+### Installation
+
+To install the application, follow these steps:
+
+1. Connect to the robot using SFTP.
+
+2. Transfer the `src` folder to the robot using the path `~/rps/src`.
+
+3. Transfer the `www/rps` folder to the robot using the path `~/.local/share/ota/rps`.
 
 ## Usage
 
-If you are not using the development container, you will need to install the required dependencies first. Otherwise you can skip to step 4.
+1. Connect to the robot using SSH.
 
-**Step 1.** Install [Python 2.7](https://www.python.org/download/releases/2.7/).
+2. Run the below command to start the application. Replace `<LANGUAGE>` with the language you want to use: `English` or `Swedish`.
 
-**Step 2.** Start by installing the required modules
+    ```bash
+    python ./rps/src/app.py <LANGUAGE>
+    ```
 
-```bash
-pip install -r requirements.txt
-```
+    Pepper will then start the application and wait for a human opponent to join the game.
 
-**Step 3.** Download and extract the [Pepper SDK](PepperSDK.md).
+### Examples
 
-**Step 4.** Upload the [`www/rps`](./www/rps/) folder to pepper using path `/data/home/nao/.local/share/ota/`, e.g. `/data/home/nao/.local/share/ota/rps/image_feed.html`. The easiest way to complete the upload is to use sftp, see [ssh.com](https://www.ssh.com/academy/ssh/sftp) for more information.
-
-**Step 5.** Start the application with `python ./src/app.py`.
-
-## Capture images
-
-To capture images, you need to run the `capture.py` script. This script will capture images from the robot's camera and save them on the computer the script is running on. If you are using the dev container and not already in the project root, navigate to `/workspaces/Rock-Paper-Scissors`. Next run
+Start the application in English:
 
 ```bash
-python ./src/ai/capture_image.py [name_of_image.jpg]
+python ./rps/src/app.py English
 ```
 
-If only an image name is provided, the image will be saved in the current path. If a path is provided, the image will be saved in the specified path.
+## Contributing
 
-## Development
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to set up the development environment on your local machine and how to suggest changes or enhancements to the project.
 
-### Dependencies
+## License
 
-All dependencies are managed by pip and are listed in the `requirements.txt` and `requirements-dev.txt` file. The development dependencies are only required if you want to make changes to the code. To install the dependencies, including the development dependencies, run:
-
-```bash
-pip install -r requirements.txt -r requirements-dev.txt
-```
-
-The `requirements.txt` file contains the dependencies required to launch the application and the `requirements-dev.txt` file contains tools used during development.
-
-If a new dependency is added, make sure to update the correct requirement file with name and version of the new dependency. The same applies when removing a dependency. To automatically update the requirements file `requirements.txt`, run:
-
-```bash
-pipreqs
-```
-
-### Development Container _(optional)_
-
-This repository includes a Visual Studio Code Dev Containers / GitHub Codespaces development container.
-
-- For [Dev Containers](https://aka.ms/vscode-remote/download/containers), use the **Dev Containers: Clone Repository in Container Volume...** command which creates a Docker volume for better disk I/O on macOS and Windows.
-  - If you already have VS Code and Docker installed, you can also click [here](vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/D7017E/Rock-Paper-Scissors) to get started. This will cause VS Code to automatically install the Dev Containers extension if needed, clone the source code into a container volume, and spin up a dev container for use.
-- For Codespaces, install the [GitHub Codespaces](https://marketplace.visualstudio.com/items?itemName=GitHub.codespaces) extension in VS Code, and use the **Codespaces: Create New Codespace** command.
-
-See the [development container README](.devcontainer/README.md) for more information.
-
-When communicating with the host machine via network, e.g. to access local instance of [rps server](https://github.com/d7017e/rps_server), please use the following address: `host.docker.internal`. To make a http request to a local rps server from the devcontainer, use the address: `http://host.docker.internal:5000`. Change the port number if you are using a different port.
-
-### Documentation
-
-The documentation is generated using [Sphinx](https://www.sphinx-doc.org/en/master/). To generate the documentation, change directory to `docs/` and run:
-
-```bash
-make html
-```
-
-The generated documentation is then available in the `docs/build/html/` folder. To view the documentation, open the `index.html` file in a browser.
-
-### Debug
-
-To start a debug session, the [debugpy](https://pypi.org/project/debugpy/) module must be installed in the environment, see [Dependencies](#dependencies).
-
-#### Using VS Code
-
-1. Open the python file you want to debug.
-2. Press <kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>F1</kbd> and select **Debug: Select and Start Debugging**. Next, select **Python: Debug File** in the dropdown list to start debugging.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
