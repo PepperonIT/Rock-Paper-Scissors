@@ -8,6 +8,7 @@ The following tools are required to install and run the application:
 
 - SSH client ([PuTTY](https://www.putty.org/), [OpenSSH](https://www.openssh.com/), etc.)
 - SFTP client ([FileZilla](https://filezilla-project.org/), [OpenSSH](https://www.openssh.com/), etc.)
+- [RPS server](https://github.com/PepperonIT/rps_server)
 
 These tools are used to connect to the robot and transfer the application files to the robot. Instructions are provided below on how to install the application on the robot. This section will not cover how to run the application on your local machine.
 
@@ -21,24 +22,26 @@ To install the application, follow these steps:
 
 3. Transfer the `www/rps` folder to the robot using the path `~/.local/share/ota/rps`.
 
+4. Clone the [RPS server](https://github.com/PepperonIT/rps_server) to your local machine or remote server. Start the server and make sure it is running and accessible from the robot.
+
 ## Usage
 
 1. Connect to the robot using SSH.
 
-2. Run the below command to start the application. Replace `<LANGUAGE>` with the language you want to use: `English` or `Swedish`.
+2. Run the below command to start the application. Replace `<LANGUAGE>` with the language you want to use: `English` or `Swedish`, and `<RPS_SERVER_ADDRESS>` with the address to the RPS server.
 
     ```bash
-    python ./rps/src/app.py <LANGUAGE>
+    python ./rps/src/app.py <LANGUAGE> <RPS_SERVER_ADDRESS>
     ```
 
     Pepper will then start the application and wait for a human opponent to join the game.
 
 ### Examples
 
-Start the application in English:
+Start the application in English and `http://192.168.1.10` as the RPS server address:
 
 ```bash
-python ./rps/src/app.py English
+python ./rps/src/app.py English "http://192.168.1.10"
 ```
 
 ## Contributing

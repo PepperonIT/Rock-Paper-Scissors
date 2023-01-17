@@ -4,9 +4,16 @@ import base64
 import json
 
 
-def predict_on_images(images):
+def predict_on_images(images, server_address):
     """
     Send images to the server and get predictions.
+
+    Parameters
+    ----------
+    images: list(numpy.ndarray)
+        A list of images to send to the server.
+    server_address: str
+        The address of the server to send the images to. Should not include a trailing slash.
 
     Returns
     -------
@@ -29,14 +36,14 @@ def predict_on_images(images):
         "shape": images[0].shape
     })
     request_headers = {"Content-Type": "application/json"}
-    request_url = "https://pepper.lillbonum.se/predict/hand"
+    request_url = "{}/predict/hand".format(server_address)
 
     # Send HTTP request
-    response = requests.get(request_url, data=request_body, headers=request_headers, verify=False)
+    response = requests.get(request_url, data=request_body, headers=request_headers)
     if response.status_code != 200:
         print("Status code: " + str(response.status_code))
         print("Error: " + response.text)
-        return -3
+        return -3, None
     else:
         response_json = response.json()
 
