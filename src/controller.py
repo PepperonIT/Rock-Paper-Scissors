@@ -132,7 +132,7 @@ class Controller:
     Docstring 1
     """
 
-    def __init__(self, session, language='Swedish'):
+    def __init__(self, session, RPS_server_address, language='Swedish'):
         self.motion_service = session.service("ALMotion")
         self.tablet_service = session.service("ALTabletService")
         self.camera_service = session.service("ALVideoDevice")
@@ -157,6 +157,9 @@ class Controller:
         # self.tablet_service.preLoadImage(image_paths[key])
 
         self.tablet_service.resetTablet()
+
+        # Set address of RPS server
+        self.RPS_server_address = RPS_server_address
 
     def create_new_game(self, rounds=None):
         # type: (int|None) -> None
@@ -335,7 +338,7 @@ class Controller:
             gesture_images.append(gesture)
 
         # Process images
-        prediction, image_path = predict_on_images(gesture_images)
+        prediction, image_path = predict_on_images(gesture_images, self.RPS_server_address)
 
         return prediction, image_path
 
